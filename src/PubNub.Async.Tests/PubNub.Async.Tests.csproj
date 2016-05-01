@@ -76,6 +76,12 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PubNub.Async\PubNub.Async.csproj">
+      <Project>{febf07a0-0bb0-4a33-b216-822d0325ced2}</Project>
+      <Name>PubNub.Async</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>
