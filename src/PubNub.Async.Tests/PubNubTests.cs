@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Threading.Tasks;
 using Ploeh.AutoFixture;
 using Xunit;
 
@@ -23,10 +25,10 @@ namespace PubNub.Async.Tests
 			Assert.Equal(expectedCiphKey, subject.CipherKey);
 			Assert.Equal(expectedSsl, subject.SslEnabled);
 
-			Assert.NotNull(subject.SessionUUID);
-			Assert.NotEmpty(subject.SessionUUID);
+			Assert.NotNull(subject.SessionUuid);
+			Assert.NotEmpty(subject.SessionUuid);
 			Guid outGuid;
-			Assert.True(Guid.TryParse(subject.SessionUUID, out outGuid));
+			Assert.True(Guid.TryParse(subject.SessionUuid, out outGuid));
 		}
 
 		[Fact]
@@ -46,10 +48,10 @@ namespace PubNub.Async.Tests
 			Assert.Equal(expectedCiphKey, subject.CipherKey);
 			Assert.Equal(expectedSsl, subject.SslEnabled);
 
-			Assert.NotNull(subject.SessionUUID);
-			Assert.NotEmpty(subject.SessionUUID);
+			Assert.NotNull(subject.SessionUuid);
+			Assert.NotEmpty(subject.SessionUuid);
 			Guid outGuid;
-			Assert.True(Guid.TryParse(subject.SessionUUID, out outGuid));
+			Assert.True(Guid.TryParse(subject.SessionUuid, out outGuid));
 		}
 
 		[Fact]
@@ -59,20 +61,22 @@ namespace PubNub.Async.Tests
 			var expectedSubKey = Fixture.Create<string>();
 			var expectedSecKey = Fixture.Create<string>();
 			var expectedCiphKey = Fixture.Create<string>();
+		    var expectedSessionUuid = Fixture.Create<string>();
 			var expectedSsl = true;
 
-			var subject = new PubNub(expectedPubKey, expectedSubKey, expectedSecKey, expectedCiphKey, expectedSsl);
+			var subject = new PubNub(expectedPubKey, expectedSubKey, expectedSecKey, expectedSessionUuid, expectedCiphKey, expectedSsl);
 
 			Assert.Equal(expectedPubKey, subject.PublishKey);
 			Assert.Equal(expectedSubKey, subject.SubscribeKey);
 			Assert.Equal(expectedSecKey, subject.SecretKey);
+            Assert.Equal(expectedSessionUuid, subject.SessionUuid);
 			Assert.Equal(expectedCiphKey, subject.CipherKey);
 			Assert.Equal(expectedSsl, subject.SslEnabled);
 
-			Assert.NotNull(subject.SessionUUID);
-			Assert.NotEmpty(subject.SessionUUID);
+			Assert.NotNull(subject.SessionUuid);
+			Assert.NotEmpty(subject.SessionUuid);
 			Guid outGuid;
-			Assert.True(Guid.TryParse(subject.SessionUUID, out outGuid));
+			Assert.True(Guid.TryParse(subject.SessionUuid, out outGuid));
 		}
 	}
 }

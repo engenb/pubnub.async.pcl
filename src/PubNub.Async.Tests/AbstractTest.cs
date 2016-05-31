@@ -9,7 +9,7 @@ namespace PubNub.Async.Tests
 		private IFixture _fixture;
 
 		protected virtual IFixture Fixture => _fixture ?? CreateFixture();
-
+		
 		private IFixture CreateFixture()
 		{
 			_fixture = new Fixture();
