@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace PubNub.Async.Extensions.HttpResponseMessage
+namespace PubNub.Async.Extensions
 {
 	public static class HttpResponseMethodPostProcessExtensions
 	{

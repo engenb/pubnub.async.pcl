@@ -2,7 +2,6 @@ using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyDescription("An unofficial async/await PubNub API client.  This is my attempt to improve on the client provided by PubNub.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("engenb")]
 [assembly: AssemblyProduct("PubNub.Async")]

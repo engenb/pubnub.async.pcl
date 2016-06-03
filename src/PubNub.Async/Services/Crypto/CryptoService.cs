@@ -4,11 +4,11 @@ using PCLCrypto;
 
 using static PCLCrypto.WinRTCrypto;
 
-namespace PubNub.Async
+namespace PubNub.Async.Services.Crypto
 {
-    internal static class Crypto
+    public class CryptoService : ICryptoService
     {
-        public static string Decrypt(string cipher, string source)
+        public string Decrypt(string cipher, string source)
         {
             var provider = SymmetricKeyAlgorithmProvider.OpenAlgorithm(SymmetricAlgorithm.AesCbcPkcs7);
 
@@ -20,7 +20,6 @@ namespace PubNub.Async
             //convert to string
             return Encoding.UTF8.GetString(decryptedBytes, 0, decryptedBytes.Length);
         }
-
         private static byte[] BuildCipher(string cipherSrc)
         {
             var inputBytes = Encoding.UTF8.GetBytes(cipherSrc);

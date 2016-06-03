@@ -76,5 +76,23 @@ namespace PubNub.Async.Tests.Properties {
                 return ((string)(this["SecretKey"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("history-tests-encrypted")]
+        public string HistoryEncryptedChannel {
+            get {
+                return ((string)(this["HistoryEncryptedChannel"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("history-tests-unencrypted")]
+        public string HistoryDecryptedChannel {
+            get {
+                return ((string)(this["HistoryDecryptedChannel"]));
+            }
+        }
     }
 }

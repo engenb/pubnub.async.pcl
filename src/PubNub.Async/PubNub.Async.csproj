@@ -40,9 +40,11 @@
     <Compile Include="..\SharedAssemblyVersionInfo.cs">
       <Link>Properties\SharedAssemblyVersionInfo.cs</Link>
     </Compile>
-    <Compile Include="Crypto.cs" />
+    <Compile Include="Configuration\AbstractPubNubSettings.cs" />
+    <Compile Include="Configuration\ConfigurationExtensions.cs" />
     <Compile Include="Extensions\HistoryExtensions.cs" />
-    <Compile Include="Extensions\HttpResponseMessage\HttpResponseMethodPostProcessExtensions.cs" />
+    <Compile Include="Extensions\HttpResponseMethodPostProcessExtensions.cs" />
+    <Compile Include="Configuration\IPubNubSettings.cs" />
     <Compile Include="Models\Channel\Channel.cs" />
     <Compile Include="Models\Channel\ChannelExtensions.cs" />
     <Compile Include="Models\History\HistoryMessage.cs" />
@@ -50,14 +52,20 @@
     <Compile Include="Models\PubNubResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PubNub.cs" />
+    <Compile Include="PubNubClient.cs" />
+    <Compile Include="Configuration\DefaultPubNubSettings.cs" />
+    <Compile Include="Services\Crypto\CryptoService.cs" />
+    <Compile Include="Services\Crypto\ICryptoService.cs" />
+    <Compile Include="Services\History\HistoryService.cs" />
+    <Compile Include="Services\History\IHistoryService.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Flurl, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Flurl.1.1.2\lib\portable-net40+sl50+win+wpa81+wp80+MonoAndroid10+MonoTouch10\Flurl.dll</HintPath>
+    <Reference Include="Flurl, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Flurl.2.0.0\lib\portable-net40+win+wpa81+wp80+MonoAndroid10+MonoTouch10\Flurl.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Flurl.Http, Version=0.7.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Flurl.Http.0.9.0\lib\portable-net45+sl50+win+wpa81+wp80\Flurl.Http.dll</HintPath>
+    <Reference Include="Flurl.Http, Version=0.10.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Flurl.Http.0.10.1\lib\portable-net45+win+wpa81+wp80\Flurl.Http.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Threading.Tasks, Version=1.0.12.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -76,12 +84,12 @@
       <HintPath>..\packages\PCLCrypto.2.0.147\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\PCLCrypto.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="PCLStorage, Version=0.9.6.0, Culture=neutral, PublicKeyToken=286fe515a2c35b64, processorArchitecture=MSIL">
-      <HintPath>..\packages\PCLStorage.0.9.6\lib\portable-net45+wp8+wpa81+win8+monoandroid+monotouch\PCLStorage.dll</HintPath>
+    <Reference Include="PCLStorage, Version=1.0.2.0, Culture=neutral, PublicKeyToken=286fe515a2c35b64, processorArchitecture=MSIL">
+      <HintPath>..\packages\PCLStorage.1.0.2\lib\portable-net45+wp8+wpa81+win8+monoandroid+monotouch+Xamarin.iOS+Xamarin.Mac\PCLStorage.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="PCLStorage.Abstractions, Version=0.9.6.0, Culture=neutral, PublicKeyToken=286fe515a2c35b64, processorArchitecture=MSIL">
-      <HintPath>..\packages\PCLStorage.0.9.6\lib\portable-net45+wp8+wpa81+win8+monoandroid+monotouch\PCLStorage.Abstractions.dll</HintPath>
+    <Reference Include="PCLStorage.Abstractions, Version=1.0.2.0, Culture=neutral, PublicKeyToken=286fe515a2c35b64, processorArchitecture=MSIL">
+      <HintPath>..\packages\PCLStorage.1.0.2\lib\portable-net45+wp8+wpa81+win8+monoandroid+monotouch+Xamarin.iOS+Xamarin.Mac\PCLStorage.Abstractions.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="PInvoke.BCrypt, Version=0.3.0.0, Culture=neutral, PublicKeyToken=9e300f9f87f04a7a, processorArchitecture=MSIL">
