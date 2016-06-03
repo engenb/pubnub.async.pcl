@@ -1,6 +1,6 @@
 # pubnub.async
 
-[![GitHub license](https://raw.githubusercontent.com/engenb/pubnub.async.pcl/history/LICENSE)
+[![GitHub license](https://img.shields.io/github/license/en-gen/crankshaft.svg)](https://raw.githubusercontent.com/engenb/pubnub.async.pcl/history/LICENSE)
 
 | Branch | Nuget | Build | Test Coverage | Static Analysis |
 | ------ | ----- | ----- | ------------- | --------------- |
