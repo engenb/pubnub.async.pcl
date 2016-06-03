@@ -22,7 +22,7 @@ namespace PubNub.Async
 
 	    public IPubNubClient ConfigureClient(Action<IPubNubSettings> action)
 	    {
-		    action(Settings);
+			action(Settings);
 			return this;
 	    }
 

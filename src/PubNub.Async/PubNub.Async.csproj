@@ -37,9 +37,6 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="..\SharedAssemblyVersionInfo.cs">
-      <Link>Properties\SharedAssemblyVersionInfo.cs</Link>
-    </Compile>
     <Compile Include="Configuration\AbstractPubNubSettings.cs" />
     <Compile Include="Configuration\ConfigurationExtensions.cs" />
     <Compile Include="Extensions\HistoryExtensions.cs" />
@@ -125,6 +122,7 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+    <None Include="PubNub.Async.nuspec" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
