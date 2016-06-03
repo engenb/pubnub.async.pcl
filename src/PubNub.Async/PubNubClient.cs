@@ -8,7 +8,7 @@ namespace PubNub.Async
 	{
 	    public IPubNubSettings Settings { get; }
 
-	    public Channel Channel { get; set; }
+	    public Channel Channel { get; }
 
 	    public PubNubClient(Channel channel)
 	    {
