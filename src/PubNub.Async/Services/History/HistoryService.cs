@@ -19,7 +19,7 @@ namespace PubNub.Async.Services.History
 		private IPubNubSettings Settings { get; }
 		private Channel Channel { get; }
 
-        public HistoryService(PubNubClient client, ICryptoService crypto)
+        public HistoryService(IPubNubClient client, ICryptoService crypto)
         {
             Crypto = crypto;
 	        Settings = client.Settings;

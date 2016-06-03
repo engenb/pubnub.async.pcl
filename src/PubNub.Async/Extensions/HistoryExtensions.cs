@@ -18,7 +18,7 @@ namespace PubNub.Async.Extensions
 		}
 
 		public static async Task<HistoryResponse<TContent>> History<TContent>(
-            this PubNubClient client,
+            this IPubNubClient client,
             long? start = null,
             long? end = null,
             int? count = null,

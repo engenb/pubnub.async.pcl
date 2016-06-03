@@ -20,7 +20,7 @@ namespace PubNub.Async.Configuration
 		public string CipherKey { get; set; }
 
 		public abstract Func<ICryptoService> CryptoFactory { get; }
-		public abstract Func<PubNubClient, IHistoryService> HistoryFactory { get; }
+		public abstract Func<IPubNubClient, IHistoryService> HistoryFactory { get; }
 
 		protected AbstractPubNubSettings()
 		{

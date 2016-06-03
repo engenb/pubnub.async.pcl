@@ -1,5 +1,4 @@
 using System;
-using PubNub.Async.Models.Channel;
 using PubNub.Async.Services.Crypto;
 using PubNub.Async.Services.History;
 
@@ -21,7 +20,7 @@ namespace PubNub.Async.Configuration
 		string CipherKey { get; set; }
 
 		Func<ICryptoService> CryptoFactory { get; }
-		Func<PubNubClient, IHistoryService> HistoryFactory { get; }
+		Func<IPubNubClient, IHistoryService> HistoryFactory { get; }
 
 		void Reset();
 		IPubNubSettings Clone();

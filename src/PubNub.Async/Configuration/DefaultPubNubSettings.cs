@@ -7,6 +7,6 @@ namespace PubNub.Async.Configuration
     public class DefaultPubNubSettings : AbstractPubNubSettings
     {
 		public override Func<ICryptoService> CryptoFactory => () => new CryptoService(); 
-	    public override Func<PubNubClient, IHistoryService> HistoryFactory => pn => new HistoryService(pn, CryptoFactory());
+	    public override Func<IPubNubClient, IHistoryService> HistoryFactory => pn => new HistoryService(pn, CryptoFactory());
 	}
 }

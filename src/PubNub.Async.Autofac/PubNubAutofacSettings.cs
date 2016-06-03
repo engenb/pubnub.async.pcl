@@ -9,11 +9,11 @@ namespace PubNub.Async.Autofac
 	public class PubNubAutofacSettings : AbstractPubNubSettings
 	{
 		public override Func<ICryptoService> CryptoFactory { get; }
-		public override Func<PubNubClient, IHistoryService> HistoryFactory { get; }
+		public override Func<IPubNubClient, IHistoryService> HistoryFactory { get; }
 
 		public PubNubAutofacSettings(
 			Func<ICryptoService> cryptoFactory,
-			Func<PubNubClient, IHistoryService> historyFactory)
+			Func<IPubNubClient, IHistoryService> historyFactory)
 		{
 			CryptoFactory = cryptoFactory;
 			HistoryFactory = historyFactory;

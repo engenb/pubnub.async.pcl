@@ -45,6 +45,7 @@
     <Compile Include="Extensions\HistoryExtensions.cs" />
     <Compile Include="Extensions\HttpResponseMethodPostProcessExtensions.cs" />
     <Compile Include="Configuration\IPubNubSettings.cs" />
+    <Compile Include="IPubNubClient.cs" />
     <Compile Include="Models\Channel\Channel.cs" />
     <Compile Include="Models\Channel\ChannelExtensions.cs" />
     <Compile Include="Models\History\HistoryMessage.cs" />

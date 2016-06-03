@@ -10,13 +10,13 @@ namespace PubNub.Async.Testing
 	{
 		public TestablePubNubSettings(
 			Func<ICryptoService> cryptoFactory = null,
-			Func<PubNubClient, IHistoryService> historyFactory = null)
+			Func<IPubNubClient, IHistoryService> historyFactory = null)
 		{
 			CryptoFactory = cryptoFactory ?? Mock.Of<ICryptoService>;
 			HistoryFactory = historyFactory ?? (client => Mock.Of<IHistoryService>());
 		}
 
 		public override Func<ICryptoService> CryptoFactory { get; }
-		public override Func<PubNubClient, IHistoryService> HistoryFactory { get; }
+		public override Func<IPubNubClient, IHistoryService> HistoryFactory { get; }
 	}
 }

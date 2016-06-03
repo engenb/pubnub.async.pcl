@@ -1,9 +1,10 @@
-﻿using PubNub.Async.Configuration;
+﻿using System;
+using PubNub.Async.Configuration;
 using PubNub.Async.Models.Channel;
 
 namespace PubNub.Async
 {
-    public class PubNubClient
+    public class PubNubClient : IPubNubClient
 	{
 	    public IPubNubSettings Settings { get; }
 
@@ -19,12 +20,23 @@ namespace PubNub.Async
 	    {
 	    }
 
-		public string PrepareUrl()
-		{
-			return (Settings.SslEnabled
-				? "https://"
-				: "http://")
-				   + Settings.Origin;
-		}
+	    public IPubNubClient ConfigureClient(Action<IPubNubSettings> action)
+	    {
+		    action(Settings);
+			return this;
+	    }
+
+	    public IPubNubClient Encrypted()
+	    {
+		    Channel.Encrypted = true;
+		    return this;
+	    }
+
+	    public IPubNubClient EncryptedWith(string cipher)
+	    {
+		    Channel.Encrypted = true;
+		    Channel.Cipher = cipher;
+		    return this;
+	    }
 	}
 }

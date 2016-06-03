@@ -23,7 +23,6 @@ namespace PubNub.Async.Tests.Services.History
 			var response = await Settings.Default.HistoryDecryptedChannel
 				.ConfigureClient(c =>
 				{
-					c.PublishKey = Settings.Default.NoFeaturesPublishKey;
 					c.SubscribeKey = Settings.Default.NoFeaturesSubscribeKey;
 				})
 				.History<HistoryTestMessage>(count: 3, reverse: true);
@@ -43,7 +42,6 @@ namespace PubNub.Async.Tests.Services.History
 			var response = await Settings.Default.HistoryDecryptedChannel
 				.ConfigureClient(c =>
 				{
-					c.PublishKey = Settings.Default.PublishKey;
 					c.SubscribeKey = Settings.Default.SubscribeKey;
 				})
 				.History<HistoryTestMessage>(count: expectedCount, reverse: true);
@@ -73,7 +71,6 @@ namespace PubNub.Async.Tests.Services.History
 				.EncryptedWith(Settings.Default.CipherKey)
 				.ConfigureClient(c =>
 				{
-					c.PublishKey = Settings.Default.PublishKey;
 					c.SubscribeKey = Settings.Default.SubscribeKey;
 					c.CipherKey = Settings.Default.CipherKey;
 				})
