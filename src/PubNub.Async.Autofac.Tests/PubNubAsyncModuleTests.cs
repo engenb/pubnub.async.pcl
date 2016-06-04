@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using PubNub.Async.Models.Channel;
 using Xunit;
 
 namespace PubNub.Async.Autofac.Tests

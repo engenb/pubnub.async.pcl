@@ -16,15 +16,13 @@ namespace PubNub.Async.Tests.Services.History
 		[Category("integration")]
 		public async Task History__Given_ConfiguredPubNubWithSSL__When_HistoryNotEnabled__Then_GetError()
 		{
-			var expectedError = "Use of the history API requires the Storage & Playback add-on which is not enabled for this subscribe key. " +
-								"Login to your PubNub Dashboard Account and ADD the Storage & Playback add-on. " +
-								"Contact support@pubnub.com if you require further assistance.";
-		
+			var expectedError =
+				"Use of the history API requires the Storage & Playback add-on which is not enabled for this subscribe key. " +
+				"Login to your PubNub Dashboard Account and ADD the Storage & Playback add-on. " +
+				"Contact support@pubnub.com if you require further assistance.";
+
 			var response = await Settings.Default.HistoryDecryptedChannel
-				.ConfigureClient(c =>
-				{
-					c.SubscribeKey = Settings.Default.NoFeaturesSubscribeKey;
-				})
+				.ConfigureClient(c => { c.SubscribeKey = Settings.Default.NoFeaturesSubscribeKey; })
 				.History<HistoryTestMessage>(count: 3, reverse: true);
 
 			Assert.Equal(0, response.Start);
@@ -38,12 +36,9 @@ namespace PubNub.Async.Tests.Services.History
 		public async Task History__Given_ConfiguredPubNubWithSSL__When_UnencryptedCountIsThreeAndReverse__Then_GetFirstThree()
 		{
 			var expectedCount = 3;
-			
+
 			var response = await Settings.Default.HistoryDecryptedChannel
-				.ConfigureClient(c =>
-				{
-					c.SubscribeKey = Settings.Default.SubscribeKey;
-				})
+				.ConfigureClient(c => { c.SubscribeKey = Settings.Default.SubscribeKey; })
 				.History<HistoryTestMessage>(count: expectedCount, reverse: true);
 
 			Assert.NotNull(response.Messages);
@@ -63,10 +58,11 @@ namespace PubNub.Async.Tests.Services.History
 
 		[Fact]
 		[Category("integration")]
-		public async Task History__Given_ConfiguredPubNubWithSSL__When_EncryptedCountIsThreeAndReverse__Then_GetDecryptFirstThree()
+		public async Task
+			History__Given_ConfiguredPubNubWithSSL__When_EncryptedCountIsThreeAndReverse__Then_GetDecryptFirstThree()
 		{
 			var expectedCount = 3;
-			
+
 			var response = await Settings.Default.HistoryEncryptedChannel
 				.EncryptedWith(Settings.Default.CipherKey)
 				.ConfigureClient(c =>

@@ -12,6 +12,5 @@ namespace PubNub.Async
 		IPubNubClient ConfigureClient(Action<IPubNubSettings> action);
 		IPubNubClient Encrypted();
 		IPubNubClient EncryptedWith(string cipher);
-
 	}
 }

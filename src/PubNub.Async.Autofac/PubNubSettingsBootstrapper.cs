@@ -6,12 +6,12 @@ namespace PubNub.Async.Autofac
 {
 	public class PubNubSettingsBootstrapper : IStartable
 	{
-		private Lazy<IPubNubSettings> SettingsFactory { get; } 
-
 		public PubNubSettingsBootstrapper(Lazy<IPubNubSettings> settingsFactory)
 		{
 			SettingsFactory = settingsFactory;
 		}
+
+		private Lazy<IPubNubSettings> SettingsFactory { get; }
 
 		public void Start()
 		{

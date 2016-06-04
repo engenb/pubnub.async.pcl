@@ -6,6 +6,7 @@ namespace PubNub.Async.Models.History
 	{
 		[JsonProperty("timetoken")]
 		public long Sent { get; set; }
+
 		[JsonProperty("message")]
 		public TContent Content { get; set; }
 	}

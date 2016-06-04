@@ -6,6 +6,11 @@ namespace PubNub.Async.Configuration
 {
 	public abstract class AbstractPubNubSettings : IPubNubSettings
 	{
+		protected AbstractPubNubSettings()
+		{
+			Reset();
+		}
+
 		public string SdkVersion { get; set; }
 		public bool SslEnabled { get; set; }
 		public string Origin { get; set; }
@@ -21,11 +26,6 @@ namespace PubNub.Async.Configuration
 
 		public abstract Func<ICryptoService> CryptoFactory { get; }
 		public abstract Func<IPubNubClient, IHistoryService> HistoryFactory { get; }
-
-		protected AbstractPubNubSettings()
-		{
-			Reset();
-		}
 
 		public void Reset()
 		{

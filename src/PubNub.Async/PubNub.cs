@@ -8,6 +8,7 @@ namespace PubNub.Async
 		private static readonly object SettingsLock = new object();
 
 		private static Lazy<IPubNubSettings> _settings;
+
 		internal static Lazy<IPubNubSettings> Settings
 		{
 			get { return _settings ?? (_settings = new Lazy<IPubNubSettings>(() => new DefaultPubNubSettings())); }
@@ -15,7 +16,7 @@ namespace PubNub.Async
 		}
 
 		public static IPubNubSettings GlobalSettings => Settings.Value;
-		
+
 		public static void Configure(Action<IPubNubSettings> configureSettings)
 		{
 			lock (SettingsLock)
