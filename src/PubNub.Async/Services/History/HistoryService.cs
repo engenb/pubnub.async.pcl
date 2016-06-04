@@ -27,8 +27,8 @@ namespace PubNub.Async.Services.History
 		private Channel Channel { get; }
 
 		public async Task<HistoryResponse<TContent>> History<TContent>(
-			long? start = null,
-			long? end = null,
+			long? newest = null,
+			long? oldest = null,
 			int? count = null,
 			bool reverse = false,
 			bool includeTime = true)
@@ -52,13 +52,13 @@ namespace PubNub.Async.Services.History
 			{
 				requestUrl.SetQueryParam("reverse", reverse);
 			}
-			if (start.HasValue && start > -1)
+			if (newest.HasValue && newest > -1)
 			{
-				requestUrl.SetQueryParam("start", start);
+				requestUrl.SetQueryParam("start", newest);
 			}
-			if (end.HasValue && end > -1)
+			if (oldest.HasValue && oldest > -1)
 			{
-				requestUrl.SetQueryParam("end", end);
+				requestUrl.SetQueryParam("end", oldest);
 			}
 			if (!string.IsNullOrWhiteSpace(Settings.AuthenticationKey))
 			{
@@ -68,10 +68,10 @@ namespace PubNub.Async.Services.History
 				.ProcessResponse()
 				.ReceiveString();
 
-			return Deserialize<TContent>(Channel, rawResponse);
+			return DeserializeResponse<TContent>(Channel, rawResponse, includeTime);
 		}
 
-		private HistoryResponse<TContent> Deserialize<TContent>(Channel channel, string rawResponse)
+		private HistoryResponse<TContent> DeserializeResponse<TContent>(Channel channel, string rawResponse, bool includeTime)
 		{
 			var array = JArray.Parse(rawResponse);
 			if (!array.HasValues || array.Count != 3)
@@ -98,21 +98,35 @@ namespace PubNub.Async.Services.History
 				End = end,
 				Messages = messages.Children()
 					.Select(x => channel.Encrypted
-						? Decrypt<TContent>(channel.Cipher ?? Settings.CipherKey, x)
-						: x.ToObject<HistoryMessage<TContent>>())
+						? Decrypt<TContent>(x, channel.Cipher ?? Settings.CipherKey, includeTime)
+						: DeserializeRecord<TContent>(x, includeTime))
+					.ToArray()
 			};
 		}
 
-		private HistoryMessage<TContent> Decrypt<TContent>(string cipherKey, JToken token)
+		private HistoryMessage<TContent> DeserializeRecord<TContent>(JToken historyRecord, bool includeTime)
 		{
-			var encryptedMsg = token.ToObject<HistoryMessage<string>>();
-			var encryptedContent = encryptedMsg.Content;
-
-			var decryptedContent = Crypto.Decrypt(cipherKey, encryptedContent);
+			if (includeTime)
+			{
+				return historyRecord.ToObject<HistoryMessage<TContent>>();
+			}
 
 			return new HistoryMessage<TContent>
 			{
-				Sent = encryptedMsg.Sent,
+				Content = historyRecord.ToObject<TContent>()
+			};
+		} 
+
+		private HistoryMessage<TContent> Decrypt<TContent>(JToken historyRecord, string cipherKey, bool includeTime)
+		{
+			var encryptedRecord = DeserializeRecord<string>(historyRecord, includeTime);
+			var encryptedContent = encryptedRecord.Content;
+			
+			var decryptedContent = Crypto.Decrypt(cipherKey, encryptedContent);
+			
+			return new HistoryMessage<TContent>
+			{
+				Sent = encryptedRecord.Sent,
 				Content = JsonConvert.DeserializeObject<TContent>(decryptedContent)
 			};
 		}

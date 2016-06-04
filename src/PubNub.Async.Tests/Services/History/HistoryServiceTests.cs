@@ -1,16 +1,25 @@
 ﻿using System.ComponentModel;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
+using Flurl.Http.Testing;
+using Moq;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Ploeh.AutoFixture;
 using PubNub.Async.Configuration;
 using PubNub.Async.Extensions;
 using PubNub.Async.Models.Channel;
+using PubNub.Async.Services.Crypto;
+using PubNub.Async.Services.History;
+using PubNub.Async.Testing;
 using PubNub.Async.Tests.Properties;
 using Xunit;
 
 namespace PubNub.Async.Tests.Services.History
 {
-	public class HistoryServiceTests
+	public class HistoryServiceTests : AbstractTest
 	{
 		[Fact]
 		[Category("integration")]
@@ -58,6 +67,31 @@ namespace PubNub.Async.Tests.Services.History
 
 		[Fact]
 		[Category("integration")]
+		public async Task History__Given_ConfiguredPubNubWithSSL__When_TimeOmitted__Then_GetFirstThreeWithoutTime()
+		{
+			var expectedCount = 3;
+
+			var response = await Settings.Default.HistoryDecryptedChannel
+				.ConfigureClient(c => { c.SubscribeKey = Settings.Default.SubscribeKey; })
+				.History<HistoryTestMessage>(count: expectedCount, reverse: true, includeTime: false);
+
+			Assert.NotNull(response.Messages);
+			Assert.Equal(expectedCount, response.Messages.Count());
+
+			var messages = response.Messages.ToArray();
+			Assert.Equal("one", messages[0].Content.Message);
+			Assert.Null(messages[0].Sent);
+			Assert.Equal("two", messages[1].Content.Message);
+			Assert.Null(messages[1].Sent);
+			Assert.Equal("three", messages[2].Content.Message);
+			Assert.Null(messages[2].Sent);
+
+			Assert.Equal(14621647024027759L, response.Start);
+			Assert.Equal(14621647091558573L, response.End);
+		}
+
+		[Fact]
+		[Category("integration")]
 		public async Task
 			History__Given_ConfiguredPubNubWithSSL__When_EncryptedCountIsThreeAndReverse__Then_GetDecryptFirstThree()
 		{
@@ -92,5 +126,13 @@ namespace PubNub.Async.Tests.Services.History
 	{
 		[JsonProperty("message")]
 		public string Message { get; set; }
+	}
+
+	public class ComplextHistoryTestMessage
+	{
+		[JsonProperty("header")]
+		public string Header { get; set; }
+		[JsonProperty("content")]
+		public HistoryTestMessage Content { get; set; }
 	}
 }
