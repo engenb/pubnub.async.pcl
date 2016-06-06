@@ -2,6 +2,7 @@
 using PubNub.Async.Configuration;
 using PubNub.Async.Services.Crypto;
 using PubNub.Async.Services.History;
+using PubNub.Async.Services.Publish;
 
 namespace PubNub.Async.Autofac
 {
@@ -26,6 +27,10 @@ namespace PubNub.Async.Autofac
 			builder
 				.RegisterType<HistoryService>()
 				.As<IHistoryService>();
+
+			builder
+				.RegisterType<PublishService>()
+				.As<IPublishService>();
 		}
 	}
 }
