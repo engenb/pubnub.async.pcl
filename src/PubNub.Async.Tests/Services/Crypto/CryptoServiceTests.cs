@@ -20,5 +20,21 @@ namespace PubNub.Async.Tests.Services.Crypto
 
 			Assert.Equal(expectedResult, result);
 		}
+
+		[Fact]
+		public void Encrypt__Given_PubNubMessage__When_CipherCorrect__Then_Encrypt()
+		{
+			var expectedResult = "fhqbfIebqFs1rIzlMGNanS03azaP5nqBa16PbfnXkm8=";
+
+			var cipher = "TEST";
+
+			var message = "{\"text\":\"Hello World!\"}";
+
+			var subject = new CryptoService();
+
+			var result = subject.Encrypt(cipher, message);
+
+			Assert.Equal(expectedResult, result);
+		}
 	}
 }

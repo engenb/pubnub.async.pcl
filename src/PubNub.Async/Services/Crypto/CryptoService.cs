@@ -22,6 +22,19 @@ namespace PubNub.Async.Services.Crypto
 			return Encoding.UTF8.GetString(decryptedBytes, 0, decryptedBytes.Length);
 		}
 
+		public string Encrypt(string cipher, string source)
+		{
+			var provider = SymmetricKeyAlgorithmProvider.OpenAlgorithm(SymmetricAlgorithm.AesCbcPkcs7);
+
+			//convert to bytes
+			var sourceBytes = Encoding.UTF8.GetBytes(source);
+			//encrypt the content
+			var key = provider.CreateSymmetricKey(BuildCipher(cipher));
+			var encryptedBytes = CryptographicEngine.Encrypt(key, sourceBytes, IV);
+			//encode the content
+			return Convert.ToBase64String(encryptedBytes);
+		}
+
 		private static byte[] BuildCipher(string cipherSrc)
 		{
 			var inputBytes = Encoding.UTF8.GetBytes(cipherSrc);
