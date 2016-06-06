@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
@@ -69,12 +68,16 @@ namespace PubNub.Async.Services.History
 				.AppendPathSegments("channel", Channel.Name)
 				.SetQueryParams(new
 				{
-					//if count null, fetch max - pn api doesn't allow more than 100 per fetch
-					count = Math.Min(count ?? 100, 100),
 					pnsdk = Settings.SdkVersion,
 					uuid = Settings.SessionUuid
 				});
 
+			// pubnub's api will, at most and by default, return 100 records.
+			// no need to provide this value if count >= 100
+			if (count.HasValue && count.Value < 100)
+			{
+				requestUrl.SetQueryParam("count", count);
+			}
 			if (includeTime)
 			{
 				requestUrl.SetQueryParam("include_token", includeTime);
