@@ -6,8 +6,8 @@ namespace PubNub.Async.Models.History
 	{
 		public string Error { get; set; }
 
-		public IEnumerable<HistoryMessage<TMessage>> Messages { get; set; }
-		public long Start { get; set; }
-		public long End { get; set; }
+		public HistoryMessage<TMessage>[] Messages { get; set; }
+		public long Oldest { get; set; }
+		public long Newest { get; set; }
 	}
 }

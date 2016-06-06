@@ -94,5 +94,23 @@ namespace PubNub.Async.Tests.Properties {
                 return ((string)(this["HistoryDecryptedChannel"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("history-tests-encrypted.high-volume")]
+        public string HistoryEncryptedHighVolumeChannel {
+            get {
+                return ((string)(this["HistoryEncryptedHighVolumeChannel"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("history-tests-unencrypted.high-volume")]
+        public string HistoryDecryptedHighVolumeChannel {
+            get {
+                return ((string)(this["HistoryDecryptedHighVolumeChannel"]));
+            }
+        }
     }
 }

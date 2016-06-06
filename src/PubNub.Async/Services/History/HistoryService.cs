@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
@@ -27,8 +28,37 @@ namespace PubNub.Async.Services.History
 		private Channel Channel { get; }
 
 		public async Task<HistoryResponse<TContent>> History<TContent>(
-			long? newest = null,
-			long? oldest = null,
+			long? first = null,
+			long? last = null,
+			int? count = null,
+			bool reverse = false,
+			bool includeTime = true)
+		{
+			var batch = await FetchHistory<TContent>(first, last, count, reverse, includeTime);
+			if (reverse && batch.Messages != null)
+			{
+				batch.Messages = batch.Messages.Reverse().ToArray();
+			}
+			var responseMessageCount = batch.Messages?.Length;
+			if (count > 100 && responseMessageCount == 100) //recurse
+			{
+				var nextBatchCount = count - responseMessageCount;
+				var nextBatchFirst = reverse ? batch.Newest : batch.Oldest;
+
+				var nextBatch = await History<TContent>(nextBatchFirst, last, nextBatchCount, reverse, includeTime);
+				
+				batch.Messages = nextBatch.Messages
+					.Union(batch.Messages)
+					.ToArray();
+				batch.Oldest = reverse ? batch.Oldest : nextBatch.Oldest;
+				batch.Newest = reverse ? nextBatch.Newest : batch.Newest;
+			}
+			return batch;
+		}
+
+		private async Task<HistoryResponse<TContent>> FetchHistory<TContent>(
+			long? first = null,
+			long? last = null,
 			int? count = null,
 			bool reverse = false,
 			bool includeTime = true)
@@ -39,7 +69,8 @@ namespace PubNub.Async.Services.History
 				.AppendPathSegments("channel", Channel.Name)
 				.SetQueryParams(new
 				{
-					count = (count ?? -1) < 0 ? 100 : count,
+					//if count null, fetch max - pn api doesn't allow more than 100 per fetch
+					count = Math.Min(count ?? 100, 100),
 					pnsdk = Settings.SdkVersion,
 					uuid = Settings.SessionUuid
 				});
@@ -52,13 +83,13 @@ namespace PubNub.Async.Services.History
 			{
 				requestUrl.SetQueryParam("reverse", reverse);
 			}
-			if (newest.HasValue && newest > -1)
+			if (first.HasValue && first > -1)
 			{
-				requestUrl.SetQueryParam("start", newest);
+				requestUrl.SetQueryParam("start", first);
 			}
-			if (oldest.HasValue && oldest > -1)
+			if (last.HasValue && last > -1)
 			{
-				requestUrl.SetQueryParam("end", oldest);
+				requestUrl.SetQueryParam("end", last);
 			}
 			if (!string.IsNullOrWhiteSpace(Settings.AuthenticationKey))
 			{
@@ -94,8 +125,8 @@ namespace PubNub.Async.Services.History
 
 			return new HistoryResponse<TContent>
 			{
-				Start = start,
-				End = end,
+				Oldest = start,
+				Newest = end,
 				Messages = messages.Children()
 					.Select(x => channel.Encrypted
 						? Decrypt<TContent>(x, channel.Cipher ?? Settings.CipherKey, includeTime)
