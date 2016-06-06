@@ -31,7 +31,7 @@ namespace PubNub.Async.Tests.Services.History
 				"Contact support@pubnub.com if you require further assistance.";
 
 			var response = await Settings.Default.HistoryDecryptedChannel
-				.ConfigureClient(c => { c.SubscribeKey = Settings.Default.NoFeaturesSubscribeKey; })
+				.ConfigurePubNub(c => { c.SubscribeKey = Settings.Default.NoFeaturesSubscribeKey; })
 				.History<HistoryTestMessage>(count: 3, reverse: true);
 
 			Assert.Equal(0, response.Oldest);
@@ -47,7 +47,7 @@ namespace PubNub.Async.Tests.Services.History
 			var expectedCount = 3;
 
 			var response = await Settings.Default.HistoryDecryptedChannel
-				.ConfigureClient(c => { c.SubscribeKey = Settings.Default.SubscribeKey; })
+				.ConfigurePubNub(c => { c.SubscribeKey = Settings.Default.SubscribeKey; })
 				.History<HistoryTestMessage>(count: expectedCount, reverse: true);
 
 			Assert.NotNull(response.Messages);
@@ -72,7 +72,7 @@ namespace PubNub.Async.Tests.Services.History
 			var expectedCount = 3;
 
 			var response = await Settings.Default.HistoryDecryptedChannel
-				.ConfigureClient(c => { c.SubscribeKey = Settings.Default.SubscribeKey; })
+				.ConfigurePubNub(c => { c.SubscribeKey = Settings.Default.SubscribeKey; })
 				.History<HistoryTestMessage>(count: expectedCount, reverse: true, includeTime: false);
 
 			Assert.NotNull(response.Messages);
@@ -98,7 +98,7 @@ namespace PubNub.Async.Tests.Services.History
 
 			var response = await Settings.Default.HistoryEncryptedChannel
 				.EncryptedWith(Settings.Default.CipherKey)
-				.ConfigureClient(c =>
+				.ConfigurePubNub(c =>
 				{
 					c.SubscribeKey = Settings.Default.SubscribeKey;
 					c.CipherKey = Settings.Default.CipherKey;
@@ -130,7 +130,7 @@ namespace PubNub.Async.Tests.Services.History
 
 			var response = await Settings.Default.HistoryEncryptedHighVolumeChannel
 				.EncryptedWith(Settings.Default.CipherKey)
-				.ConfigureClient(c =>
+				.ConfigurePubNub(c =>
 				{
 					c.SubscribeKey = Settings.Default.SubscribeKey;
 					c.PublishKey = Settings.Default.PublishKey;
@@ -161,7 +161,7 @@ namespace PubNub.Async.Tests.Services.History
 
 			var response = await Settings.Default.HistoryEncryptedHighVolumeChannel
 				.EncryptedWith(Settings.Default.CipherKey)
-				.ConfigureClient(c =>
+				.ConfigurePubNub(c =>
 				{
 					c.SubscribeKey = Settings.Default.SubscribeKey;
 					c.PublishKey = Settings.Default.PublishKey;
@@ -181,19 +181,19 @@ namespace PubNub.Async.Tests.Services.History
 				Assert.Equal($"{i}", messages[i].Content.Message);
 			}
 		}
-	}
 
-	public class HistoryTestMessage
-	{
-		[JsonProperty("message")]
-		public string Message { get; set; }
-	}
+		public class HistoryTestMessage
+		{
+			[JsonProperty("message")]
+			public string Message { get; set; }
+		}
 
-	public class ComplextHistoryTestMessage
-	{
-		[JsonProperty("header")]
-		public string Header { get; set; }
-		[JsonProperty("content")]
-		public HistoryTestMessage Content { get; set; }
+		public class ComplextHistoryTestMessage
+		{
+			[JsonProperty("header")]
+			public string Header { get; set; }
+			[JsonProperty("content")]
+			public HistoryTestMessage Content { get; set; }
+		}
 	}
 }

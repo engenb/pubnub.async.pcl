@@ -112,5 +112,29 @@ namespace PubNub.Async.Tests.Properties {
                 return ((string)(this["HistoryDecryptedHighVolumeChannel"]));
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("publish-tests-unencrypted")]
+        public string PublishDecryptedChannel {
+            get {
+                return ((string)(this["PublishDecryptedChannel"]));
+            }
+            set {
+                this["PublishDecryptedChannel"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("publish-tests-encrypted")]
+        public string PublishEncryptedChannel {
+            get {
+                return ((string)(this["PublishEncryptedChannel"]));
+            }
+            set {
+                this["PublishEncryptedChannel"] = value;
+            }
+        }
     }
 }

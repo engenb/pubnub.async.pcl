@@ -20,7 +20,7 @@ namespace PubNub.Async
 
 		public Channel Channel { get; }
 
-		public IPubNubClient ConfigureClient(Action<IPubNubSettings> action)
+		public IPubNubClient ConfigurePubNub(Action<IPubNubSettings> action)
 		{
 			action(Settings);
 			return this;

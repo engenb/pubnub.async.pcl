@@ -32,5 +32,11 @@
     <Setting Name="HistoryDecryptedHighVolumeChannel" Type="System.String" Scope="Application">
       <Value Profile="(Default)">history-tests-unencrypted.high-volume</Value>
     </Setting>
+    <Setting Name="PublishDecryptedChannel" Type="System.String" Scope="User">
+      <Value Profile="(Default)">publish-tests-unencrypted</Value>
+    </Setting>
+    <Setting Name="PublishEncryptedChannel" Type="System.String" Scope="User">
+      <Value Profile="(Default)">publish-tests-encrypted</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

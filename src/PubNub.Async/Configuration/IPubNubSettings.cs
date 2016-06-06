@@ -1,6 +1,7 @@
 using System;
 using PubNub.Async.Services.Crypto;
 using PubNub.Async.Services.History;
+using PubNub.Async.Services.Publish;
 
 namespace PubNub.Async.Configuration
 {
@@ -21,6 +22,7 @@ namespace PubNub.Async.Configuration
 
 		Func<ICryptoService> CryptoFactory { get; }
 		Func<IPubNubClient, IHistoryService> HistoryFactory { get; }
+		Func<IPubNubClient, IPublishService> PublishFactory { get; }
 
 		void Reset();
 		IPubNubSettings Clone();

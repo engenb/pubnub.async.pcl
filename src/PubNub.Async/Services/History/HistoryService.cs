@@ -110,6 +110,7 @@ namespace PubNub.Async.Services.History
 			var array = JArray.Parse(rawResponse);
 			if (!array.HasValues || array.Count != 3)
 			{
+				//TODO: error
 				return null;
 			}
 

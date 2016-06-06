@@ -1,4 +1,5 @@
-﻿using PubNub.Async.Services.Crypto;
+﻿using PCLCrypto;
+using PubNub.Async.Services.Crypto;
 using Xunit;
 
 namespace PubNub.Async.Tests.Services.Crypto
@@ -35,6 +36,20 @@ namespace PubNub.Async.Tests.Services.Crypto
 			var result = subject.Encrypt(cipher, message);
 
 			Assert.Equal(expectedResult, result);
+		}
+
+		[Fact]
+		public void Hash__Given_SourceString__When_MD5__Then_Hash()
+		{
+			var expectedHash = "033bd94b1168d7e4f0d644c3c95e35bf";
+
+			var source = "TEST";
+
+			var subject = new CryptoService();
+
+			var result = subject.Hash(source, HashAlgorithm.Md5);
+
+			Assert.Equal(expectedHash, result);
 		}
 	}
 }
