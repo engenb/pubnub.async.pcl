@@ -30,9 +30,11 @@ namespace PubNub.Async.Services.History
 			long? first = null,
 			long? last = null,
 			int? count = null,
-			bool reverse = false,
+			HistoryOrder order = HistoryOrder.Reverse,
 			bool includeTime = true)
 		{
+			var reverse = order == HistoryOrder.Reverse;
+
 			var batch = await FetchHistory<TContent>(first, last, count, reverse, includeTime);
 			if (reverse && batch.Messages != null)
 			{
@@ -44,7 +46,7 @@ namespace PubNub.Async.Services.History
 				var nextBatchCount = count - responseMessageCount;
 				var nextBatchFirst = reverse ? batch.Newest : batch.Oldest;
 
-				var nextBatch = await History<TContent>(nextBatchFirst, last, nextBatchCount, reverse, includeTime);
+				var nextBatch = await History<TContent>(nextBatchFirst, last, nextBatchCount, order, includeTime);
 				
 				batch.Messages = nextBatch.Messages
 					.Union(batch.Messages)
@@ -56,21 +58,17 @@ namespace PubNub.Async.Services.History
 		}
 
 		private async Task<HistoryResponse<TContent>> FetchHistory<TContent>(
-			long? first = null,
-			long? last = null,
-			int? count = null,
-			bool reverse = false,
-			bool includeTime = true)
+			long? first,
+			long? last,
+			int? count,
+			bool reverse,
+			bool includeTime)
 		{
 			var requestUrl = Settings.Host
 				.AppendPathSegments("v2", "history")
 				.AppendPathSegments("sub-key", Settings.SubscribeKey)
 				.AppendPathSegments("channel", Channel.Name)
-				.SetQueryParams(new
-				{
-					pnsdk = Settings.SdkVersion,
-					uuid = Settings.SessionUuid
-				});
+				.SetQueryParam("uuid", Settings.SessionUuid);
 
 			// pubnub's api will, at most and by default, return 100 records.
 			// no need to provide this value if count >= 100

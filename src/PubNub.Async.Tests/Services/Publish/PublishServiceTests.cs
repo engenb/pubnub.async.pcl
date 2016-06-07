@@ -1,8 +1,15 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Net;
 using System.Threading.Tasks;
+using Flurl.Http.Testing;
+using Moq;
+using Newtonsoft.Json;
 using PubNub.Async.Extensions;
 using PubNub.Async.Models.Channel;
+using PubNub.Async.Models.Publish;
+using PubNub.Async.Services.Crypto;
+using PubNub.Async.Services.Publish;
 using PubNub.Async.Tests.Properties;
 using Xunit;
 
@@ -18,7 +25,79 @@ namespace PubNub.Async.Tests.Services.Publish
 				c.SubscribeKey = Settings.Default.NoFeaturesSubscribeKey;
 			});
 		}
-		
+
+		[Fact]
+		public async Task Publish__Given_Message__When_ChannelEncryptedButNoCipher__Then_UseSettingsCipher()
+		{
+			var expectedCipher = "CIPHER";
+
+			var expectedSuccess = true;
+			var expectedMessage = "Sent";
+			var expectedSent = 1234;
+			
+			var mockCrypto = new Mock<ICryptoService>();
+
+			var client = "channel"
+				.Encrypted()
+				.ConfigurePubNub(c => c.CipherKey = expectedCipher);
+
+			var subject = new PublishService(client, mockCrypto.Object);
+
+			PublishResponse response;
+
+			using (var httpTest = new HttpTest())
+			{
+				httpTest.RespondWithJson(200, new object[] {1, expectedMessage, expectedSent});
+
+				response = await subject.Publish(new PublishTestMessage { Message = "TEST" }, false);
+
+				//no need to assert anything here as per request sent (covered in another test)
+			}
+
+			Assert.NotNull(response);
+			Assert.Equal(expectedSuccess, response.Success);
+			Assert.Equal(expectedMessage, response.Message);
+			Assert.Equal(expectedSent, response.Sent);
+
+			mockCrypto.Verify(x => x.Encrypt(expectedCipher, It.IsAny<string>()), Times.Once);
+		}
+
+		[Fact]
+		public async Task Publish__Given_Message__When_ChannelEncryptedWithCipher__Then_UseSettingsCipher()
+		{
+			var expectedCipher = "CIPHER";
+
+			var expectedSuccess = true;
+			var expectedMessage = "Sent";
+			var expectedSent = 1234;
+			
+			var mockCrypto = new Mock<ICryptoService>();
+
+			var client = "channel"
+				.EncryptedWith(expectedCipher)
+				.ConfigurePubNub(c => c.CipherKey = "OTHER_CIPHER");
+
+			var subject = new PublishService(client, mockCrypto.Object);
+
+			PublishResponse response;
+
+			using (var httpTest = new HttpTest())
+			{
+				httpTest.RespondWithJson(200, new object[] { 1, expectedMessage, expectedSent });
+
+				response = await subject.Publish(new PublishTestMessage { Message = "TEST" }, false);
+
+				//no need to assert anything here as per request sent (covered in another test)
+			}
+
+			Assert.NotNull(response);
+			Assert.Equal(expectedSuccess, response.Success);
+			Assert.Equal(expectedMessage, response.Message);
+			Assert.Equal(expectedSent, response.Sent);
+
+			mockCrypto.Verify(x => x.Encrypt(expectedCipher, It.IsAny<string>()), Times.Once);
+		}
+
 		[Fact(Skip = "PN message limite = 32K, but I think http URL can't even support that length")]
 		[Category("integration")]
 		public async Task Publish__Given_Message__When_MessageTooLarge__Then_ReturnError()

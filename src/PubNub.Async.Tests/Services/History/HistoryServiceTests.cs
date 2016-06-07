@@ -1,19 +1,15 @@
 ﻿using System.ComponentModel;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Flurl.Http.Testing;
 using Moq;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Ploeh.AutoFixture;
 using PubNub.Async.Configuration;
 using PubNub.Async.Extensions;
 using PubNub.Async.Models.Channel;
 using PubNub.Async.Services.Crypto;
 using PubNub.Async.Services.History;
-using PubNub.Async.Testing;
 using PubNub.Async.Tests.Properties;
 using Xunit;
 
@@ -21,6 +17,58 @@ namespace PubNub.Async.Tests.Services.History
 {
 	public class HistoryServiceTests : AbstractTest
 	{
+		[Fact]
+		public async Task History__Given_ConfiguredPubNub__When_SSLOff__Then_Http()
+		{
+			var client = "channel"
+				.ConfigurePubNub(c =>
+				{
+					c.SubscribeKey = Settings.Default.NoFeaturesSubscribeKey;
+					c.SslEnabled = false;
+				});
+
+			var mockCrypto = new Mock<ICryptoService>();
+
+			var subject = new HistoryService(client, mockCrypto.Object);
+
+			using(var httpTest = new HttpTest())
+			{
+				httpTest.RespondWithJson(200, new object[] {new HistoryTestMessage[] {}, 1234, 1234});
+
+				await subject.History<HistoryTestMessage>();
+
+				httpTest.ShouldHaveCalled("http://*")
+					.WithVerb(HttpMethod.Get)
+					.Times(1);
+			}
+		}
+
+		[Fact]
+		public async Task History__Given_ConfiguredPubNub__When_SSLOn__Then_Https()
+		{
+			var client = "channel"
+				.ConfigurePubNub(c =>
+				{
+					c.SubscribeKey = Settings.Default.NoFeaturesSubscribeKey;
+					c.SslEnabled = true;
+				});
+
+			var mockCrypto = new Mock<ICryptoService>();
+
+			var subject = new HistoryService(client, mockCrypto.Object);
+
+			using (var httpTest = new HttpTest())
+			{
+				httpTest.RespondWithJson(200, new object[] { new HistoryTestMessage[] { }, 1234, 1234 });
+
+				await subject.History<HistoryTestMessage>();
+
+				httpTest.ShouldHaveCalled("https://*")
+					.WithVerb(HttpMethod.Get)
+					.Times(1);
+			}
+		}
+
 		[Fact]
 		[Category("integration")]
 		public async Task History__Given_ConfiguredPubNubWithSSL__When_HistoryNotEnabled__Then_GetError()
@@ -31,8 +79,8 @@ namespace PubNub.Async.Tests.Services.History
 				"Contact support@pubnub.com if you require further assistance.";
 
 			var response = await Settings.Default.HistoryDecryptedChannel
-				.ConfigurePubNub(c => { c.SubscribeKey = Settings.Default.NoFeaturesSubscribeKey; })
-				.History<HistoryTestMessage>(count: 3, reverse: true);
+				.ConfigurePubNub(c => c.SubscribeKey = Settings.Default.NoFeaturesSubscribeKey)
+				.History<HistoryTestMessage>(count: 3, order: HistoryOrder.Reverse);
 
 			Assert.Equal(0, response.Oldest);
 			Assert.Equal(0, response.Oldest);
@@ -48,7 +96,7 @@ namespace PubNub.Async.Tests.Services.History
 
 			var response = await Settings.Default.HistoryDecryptedChannel
 				.ConfigurePubNub(c => { c.SubscribeKey = Settings.Default.SubscribeKey; })
-				.History<HistoryTestMessage>(count: expectedCount, reverse: true);
+				.History<HistoryTestMessage>(count: expectedCount, order: HistoryOrder.Reverse);
 
 			Assert.NotNull(response.Messages);
 			Assert.Equal(expectedCount, response.Messages.Count());
@@ -73,7 +121,7 @@ namespace PubNub.Async.Tests.Services.History
 
 			var response = await Settings.Default.HistoryDecryptedChannel
 				.ConfigurePubNub(c => { c.SubscribeKey = Settings.Default.SubscribeKey; })
-				.History<HistoryTestMessage>(count: expectedCount, reverse: true, includeTime: false);
+				.History<HistoryTestMessage>(count: expectedCount, order: HistoryOrder.Reverse, includeTime: false);
 
 			Assert.NotNull(response.Messages);
 			Assert.Equal(expectedCount, response.Messages.Count());
@@ -103,7 +151,7 @@ namespace PubNub.Async.Tests.Services.History
 					c.SubscribeKey = Settings.Default.SubscribeKey;
 					c.CipherKey = Settings.Default.CipherKey;
 				})
-				.History<HistoryTestMessage>(count: expectedCount, reverse: true);
+				.History<HistoryTestMessage>(count: expectedCount, order: HistoryOrder.Reverse);
 
 			Assert.NotNull(response.Messages);
 			Assert.Equal(expectedCount, response.Messages.Length);
@@ -135,7 +183,7 @@ namespace PubNub.Async.Tests.Services.History
 					c.SubscribeKey = Settings.Default.SubscribeKey;
 					c.PublishKey = Settings.Default.PublishKey;
 				})
-				.History<HistoryTestMessage>(count: expectedCount, reverse: true);
+				.History<HistoryTestMessage>(count: expectedCount, order: HistoryOrder.Reverse);
 
 			Assert.NotNull(response.Messages);
 			Assert.Equal(expectedCount, response.Messages.Length);
@@ -166,7 +214,7 @@ namespace PubNub.Async.Tests.Services.History
 					c.SubscribeKey = Settings.Default.SubscribeKey;
 					c.PublishKey = Settings.Default.PublishKey;
 				})
-				.History<HistoryTestMessage>(count: expectedCount, reverse: false);
+				.History<HistoryTestMessage>(count: expectedCount, order: HistoryOrder.Chronological);
 
 			Assert.NotNull(response.Messages);
 			Assert.Equal(expectedCount, response.Messages.Length);

@@ -58,6 +58,7 @@
     <Compile Include="Services\Crypto\ICryptoService.cs" />
     <Compile Include="Services\History\HistoryService.cs" />
     <Compile Include="Services\History\IHistoryService.cs" />
+    <Compile Include="Services\History\HistoryOrder.cs" />
     <Compile Include="Services\Publish\IPublishService.cs" />
     <Compile Include="Services\Publish\PublishService.cs" />
   </ItemGroup>

@@ -30,9 +30,9 @@ namespace PubNub.Async.Services.Publish
 		{
 			var msg = JsonConvert.SerializeObject(message);
 
-			if (Channel.Encrypted && !string.IsNullOrWhiteSpace(Channel.Cipher))
+			if (Channel.Encrypted)
 			{
-				msg = Crypto.Encrypt(Channel.Cipher, msg);
+				msg = Crypto.Encrypt(Channel.Cipher ?? Settings.CipherKey, msg);
 				msg = JsonConvert.SerializeObject(msg);
 			}
 
@@ -54,11 +54,7 @@ namespace PubNub.Async.Services.Publish
 				.AppendPathSegment(Channel.Name)
 				.AppendPathSegment("0") // "callback" according to pn api - not sure what this is for, but always "0" from PubnubCore.cs
 				.AppendPathSegment(msg)
-				.SetQueryParams(new
-				{
-					pnsdk = Settings.SdkVersion,
-					uuid = Settings.SessionUuid
-				});
+				.SetQueryParam("uuid", Settings.SessionUuid);
 
 			if (!string.IsNullOrWhiteSpace(Settings.AuthenticationKey))
 			{
@@ -68,11 +64,7 @@ namespace PubNub.Async.Services.Publish
 			{
 				requestUrl.SetQueryParam("store", "0");
 			}
-
-			var testResponse = await requestUrl.GetAsync();
-
-			var testResponseStr = testResponse.StripCharsetQuotes();
-
+			
 			var rawResponse = await requestUrl.GetAsync()
 				.ProcessResponse()
 				.ReceiveString();
