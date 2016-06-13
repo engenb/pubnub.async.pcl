@@ -27,8 +27,9 @@ namespace PubNub.Async.Tests.Services.History
 				});
 
 			var mockCrypto = new Mock<ICryptoService>();
+			var mockAccess = new Mock<IAccessManager>();
 
-			var subject = new HistoryService(client, mockCrypto.Object);
+			var subject = new HistoryService(client, mockCrypto.Object, mockAccess.Object);
 
 			using(var httpTest = new HttpTest())
 			{
@@ -53,8 +54,9 @@ namespace PubNub.Async.Tests.Services.History
 				});
 
 			var mockCrypto = new Mock<ICryptoService>();
+			var mockAccess = new Mock<IAccessManager>();
 
-			var subject = new HistoryService(client, mockCrypto.Object);
+			var subject = new HistoryService(client, mockCrypto.Object, mockAccess.Object);
 
 			using (var httpTest = new HttpTest())
 			{
