@@ -10,7 +10,11 @@ namespace PubNub.Async
 		IPubNubSettings Settings { get; }
 
 		IPubNubClient ConfigurePubNub(Action<IPubNubSettings> action);
+
 		IPubNubClient Encrypted();
 		IPubNubClient EncryptedWith(string cipher);
+
+		IPubNubClient Secured(int? accessTimeout = null);
+		IPubNubClient SecuredWith(string authenticationKey, int? accessTimeout = null);
 	}
 }

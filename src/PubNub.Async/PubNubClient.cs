@@ -6,19 +6,18 @@ namespace PubNub.Async
 {
 	public class PubNubClient : IPubNubClient
 	{
+		public IPubNubSettings Settings { get; }
+		public Channel Channel { get; }
+		
+		public PubNubClient(string channel) : this(new Channel(channel))
+		{
+		}
+
 		public PubNubClient(Channel channel)
 		{
 			Settings = PubNub.GlobalSettings.Clone();
 			Channel = channel;
 		}
-
-		public PubNubClient(string channel) : this(new Channel(channel))
-		{
-		}
-
-		public IPubNubSettings Settings { get; }
-
-		public Channel Channel { get; }
 
 		public IPubNubClient ConfigurePubNub(Action<IPubNubSettings> action)
 		{
@@ -36,6 +35,21 @@ namespace PubNub.Async
 		{
 			Channel.Encrypted = true;
 			Channel.Cipher = cipher;
+			return this;
+		}
+
+		public IPubNubClient Secured(int? minutesToTimeout = null)
+		{
+			Channel.Secured = true;
+			Settings.MinutesToTimeout = minutesToTimeout;
+			return this;
+		}
+
+		public IPubNubClient SecuredWith(string authenticationKey, int? minutesToTimeout = null)
+		{
+			Channel.Secured = true;
+			Settings.AuthenticationKey = authenticationKey;
+			Settings.MinutesToTimeout = minutesToTimeout;
 			return this;
 		}
 	}

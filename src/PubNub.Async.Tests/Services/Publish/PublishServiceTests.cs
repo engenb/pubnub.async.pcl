@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using PubNub.Async.Extensions;
 using PubNub.Async.Models.Channel;
 using PubNub.Async.Models.Publish;
+using PubNub.Async.Services.Access;
 using PubNub.Async.Services.Crypto;
 using PubNub.Async.Services.Publish;
 using PubNub.Async.Tests.Properties;
@@ -36,12 +37,13 @@ namespace PubNub.Async.Tests.Services.Publish
 			var expectedSent = 1234;
 			
 			var mockCrypto = new Mock<ICryptoService>();
+			var mockAccess = new Mock<IAccessManager>();
 
 			var client = "channel"
 				.Encrypted()
 				.ConfigurePubNub(c => c.CipherKey = expectedCipher);
 
-			var subject = new PublishService(client, mockCrypto.Object);
+			var subject = new PublishService(client, mockCrypto.Object, mockAccess.Object);
 
 			PublishResponse response;
 
@@ -72,12 +74,13 @@ namespace PubNub.Async.Tests.Services.Publish
 			var expectedSent = 1234;
 			
 			var mockCrypto = new Mock<ICryptoService>();
+			var mockAccess = new Mock<IAccessManager>();
 
 			var client = "channel"
 				.EncryptedWith(expectedCipher)
 				.ConfigurePubNub(c => c.CipherKey = "OTHER_CIPHER");
 
-			var subject = new PublishService(client, mockCrypto.Object);
+			var subject = new PublishService(client, mockCrypto.Object, mockAccess.Object);
 
 			PublishResponse response;
 
@@ -99,7 +102,7 @@ namespace PubNub.Async.Tests.Services.Publish
 		}
 
 		[Fact(Skip = "PN message limite = 32K, but I think http URL can't even support that length")]
-		[Category("integration")]
+		[Trait("Category", "integration")]
 		public async Task Publish__Given_Message__When_MessageTooLarge__Then_ReturnError()
 		{
 			var message = new PublishTestMessage
@@ -115,7 +118,7 @@ namespace PubNub.Async.Tests.Services.Publish
 		}
 
 		[Fact]
-		[Category("integration")]
+		[Trait("Category", "integration")]
 		public async Task Publish__Given_Message__When_NoSecretKeyAndNotEncrypted__Then_Publish()
 		{
 			var message = new PublishTestMessage
@@ -132,7 +135,7 @@ namespace PubNub.Async.Tests.Services.Publish
 		}
 
 		[Fact]
-		[Category("integration")]
+		[Trait("Category", "integration")]
 		public async Task Publish__Given_Message__When_NoSecretKeyAndEncrypted__Then_Publish()
 		{
 			var message = new PublishTestMessage

@@ -1,4 +1,5 @@
 ﻿using System;
+using PubNub.Async.Services.Access;
 using PubNub.Async.Services.Crypto;
 using PubNub.Async.Services.History;
 using PubNub.Async.Services.Publish;
@@ -33,6 +34,7 @@ namespace PubNub.Async.Configuration
 		}
 
 		public string AuthenticationKey { get; set; }
+		public int? MinutesToTimeout { get; set; }
 
 		public string PublishKey { get; set; }
 		public string SubscribeKey { get; set; }
@@ -40,6 +42,7 @@ namespace PubNub.Async.Configuration
 		public string CipherKey { get; set; }
 
 		public abstract Func<ICryptoService> CryptoFactory { get; }
+		public abstract Func<IPubNubClient, IAccessManager> AccessFactory { get; }
 		public abstract Func<IPubNubClient, IHistoryService> HistoryFactory { get; }
 		public abstract Func<IPubNubClient, IPublishService> PublishFactory { get; }
 
@@ -50,6 +53,7 @@ namespace PubNub.Async.Configuration
 
 			SessionUuid = null;
 			AuthenticationKey = null;
+			MinutesToTimeout = null;
 
 			PublishKey = null;
 			SubscribeKey = null;

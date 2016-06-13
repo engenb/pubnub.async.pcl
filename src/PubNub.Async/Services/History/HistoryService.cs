@@ -8,23 +8,27 @@ using PubNub.Async.Configuration;
 using PubNub.Async.Extensions;
 using PubNub.Async.Models.Channel;
 using PubNub.Async.Models.History;
+using PubNub.Async.Services.Access;
 using PubNub.Async.Services.Crypto;
 
 namespace PubNub.Async.Services.History
 {
 	public class HistoryService : IHistoryService
 	{
-		public HistoryService(IPubNubClient client, ICryptoService crypto)
-		{
-			Crypto = crypto;
-			Settings = client.Settings;
-			Channel = client.Channel;
-		}
-
 		private ICryptoService Crypto { get; }
+		private IAccessManager Access { get; }
 
 		private IPubNubSettings Settings { get; }
 		private Channel Channel { get; }
+
+		public HistoryService(IPubNubClient client, ICryptoService crypto, IAccessManager access)
+		{
+			Crypto = crypto;
+			Access = access;
+
+			Settings = client.Settings;
+			Channel = client.Channel;
+		}
 
 		public async Task<HistoryResponse<TContent>> History<TContent>(
 			long? first = null,

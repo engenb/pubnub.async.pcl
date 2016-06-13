@@ -8,6 +8,7 @@ using PubNub.Async.Configuration;
 using PubNub.Async.Extensions;
 using PubNub.Async.Models.Channel;
 using PubNub.Async.Models.Publish;
+using PubNub.Async.Services.Access;
 using PubNub.Async.Services.Crypto;
 
 namespace PubNub.Async.Services.Publish
@@ -15,20 +16,35 @@ namespace PubNub.Async.Services.Publish
 	public class PublishService : IPublishService
 	{
 		private ICryptoService Crypto { get; }
+		private IAccessManager Access { get; }
 
 		private IPubNubSettings Settings { get; }
 		private Channel Channel { get; }
 
-		public PublishService(IPubNubClient client, ICryptoService crypto)
+		public PublishService(
+			IPubNubClient client,
+			ICryptoService crypto,
+			IAccessManager access)
 		{
-			Crypto = crypto;
 			Settings = client.Settings;
 			Channel = client.Channel;
+
+			Crypto = crypto;
+			Access = access;
 		}
 
 		public async Task<PublishResponse> Publish<TContent>(TContent message, bool recordHistory = true)
 		{
 			var msg = JsonConvert.SerializeObject(message);
+			
+			if (Channel.Secured)
+			{
+				var grantResponse = await Access.Establish(AccessType.Write);
+				//if (!grantResponse.Success)
+				{
+					//TODO: do something
+				}
+			}
 
 			if (Channel.Encrypted)
 			{

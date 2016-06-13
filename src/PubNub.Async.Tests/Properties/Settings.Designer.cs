@@ -113,27 +113,48 @@ namespace PubNub.Async.Tests.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("publish-tests-unencrypted")]
         public string PublishDecryptedChannel {
             get {
                 return ((string)(this["PublishDecryptedChannel"]));
             }
-            set {
-                this["PublishDecryptedChannel"] = value;
-            }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("publish-tests-encrypted")]
         public string PublishEncryptedChannel {
             get {
                 return ((string)(this["PublishEncryptedChannel"]));
             }
-            set {
-                this["PublishEncryptedChannel"] = value;
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("pub-c-bc275f09-c3c1-4cce-b52e-bea8ff9c5b55")]
+        public string PamPublishKey {
+            get {
+                return ((string)(this["PamPublishKey"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("sub-c-880a28f4-2e5d-11e6-a01f-0619f8945a4f")]
+        public string PamSubKey {
+            get {
+                return ((string)(this["PamSubKey"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("sec-c-Y2JkZDM1MWMtNjQyMy00NjJiLTk5NGQtZWIyMTQ5ZTlmYTk0")]
+        public string PamSecKey {
+            get {
+                return ((string)(this["PamSecKey"]));
             }
         }
     }

@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using PubNub.Async.Configuration;
 using PubNub.Async.Extensions;
 using PubNub.Async.Models.Channel;
+using PubNub.Async.Services.Access;
 using PubNub.Async.Services.Crypto;
 using PubNub.Async.Services.History;
 using PubNub.Async.Tests.Properties;
@@ -28,8 +29,9 @@ namespace PubNub.Async.Tests.Services.History
 				});
 
 			var mockCrypto = new Mock<ICryptoService>();
+			var mockAccess = new Mock<IAccessManager>();
 
-			var subject = new HistoryService(client, mockCrypto.Object);
+			var subject = new HistoryService(client, mockCrypto.Object, mockAccess.Object);
 
 			using(var httpTest = new HttpTest())
 			{
@@ -54,8 +56,9 @@ namespace PubNub.Async.Tests.Services.History
 				});
 
 			var mockCrypto = new Mock<ICryptoService>();
+			var mockAccess = new Mock<IAccessManager>();
 
-			var subject = new HistoryService(client, mockCrypto.Object);
+			var subject = new HistoryService(client, mockCrypto.Object, mockAccess.Object);
 
 			using (var httpTest = new HttpTest())
 			{
@@ -70,7 +73,7 @@ namespace PubNub.Async.Tests.Services.History
 		}
 
 		[Fact]
-		[Category("integration")]
+		[Trait("Category", "integration")]
 		public async Task History__Given_ConfiguredPubNubWithSSL__When_HistoryNotEnabled__Then_GetError()
 		{
 			var expectedError =
@@ -89,7 +92,7 @@ namespace PubNub.Async.Tests.Services.History
 		}
 
 		[Fact]
-		[Category("integration")]
+		[Trait("Category", "integration")]
 		public async Task History__Given_ConfiguredPubNubWithSSL__When_UnencryptedCountIsThreeAndReverse__Then_GetFirstThree()
 		{
 			var expectedCount = 3;
@@ -114,7 +117,7 @@ namespace PubNub.Async.Tests.Services.History
 		}
 
 		[Fact]
-		[Category("integration")]
+		[Trait("Category", "integration")]
 		public async Task History__Given_ConfiguredPubNubWithSSL__When_TimeOmitted__Then_GetFirstThreeWithoutTime()
 		{
 			var expectedCount = 3;
@@ -139,7 +142,7 @@ namespace PubNub.Async.Tests.Services.History
 		}
 
 		[Fact]
-		[Category("integration")]
+		[Trait("Category", "integration")]
 		public async Task History__Given_ConfiguredPubNubWithSSL__When_EncryptedCountIsThreeAndReverse__Then_GetDecryptFirstThree()
 		{
 			var expectedCount = 3;
@@ -169,7 +172,7 @@ namespace PubNub.Async.Tests.Services.History
 		}
 
 		[Fact]
-		[Category("integration")]
+		[Trait("Category" ,"integration")]
 		public async Task History__Given_ConfiguredPubNub__When_Count250Reverse__Then_Fetch250InReverseOrder()
 		{
 			var expectedCount = 250;
@@ -200,7 +203,7 @@ namespace PubNub.Async.Tests.Services.History
 		}
 
 		[Fact]
-		[Category("integration")]
+		[Trait("Category", "integration")]
 		public async Task History__Given_ConfiguredPubNub__When_Count250__Then_Fetch250InChronologicalOrder()
 		{
 			var expectedCount = 250;
