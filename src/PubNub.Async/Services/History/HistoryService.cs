@@ -109,6 +109,12 @@ namespace PubNub.Async.Services.History
 
 		private HistoryResponse<TContent> DeserializeResponse<TContent>(Channel channel, string rawResponse, bool includeTime)
 		{
+			if (string.IsNullOrWhiteSpace(rawResponse))
+			{
+				//TODO: error
+				return null;
+			}
+
 			var array = JArray.Parse(rawResponse);
 			if (!array.HasValues || array.Count != 3)
 			{

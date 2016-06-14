@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.Linq;
+﻿using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Flurl.Http.Testing;
@@ -7,7 +6,6 @@ using Moq;
 using Newtonsoft.Json;
 using PubNub.Async.Configuration;
 using PubNub.Async.Extensions;
-using PubNub.Async.Models.Channel;
 using PubNub.Async.Services.Access;
 using PubNub.Async.Services.Crypto;
 using PubNub.Async.Services.History;
