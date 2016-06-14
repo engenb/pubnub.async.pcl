@@ -101,22 +101,6 @@ namespace PubNub.Async.Tests.Services.Publish
 			mockCrypto.Verify(x => x.Encrypt(expectedCipher, It.IsAny<string>()), Times.Once);
 		}
 
-		[Fact(Skip = "PN message limite = 32K, but I think http URL can't even support that length")]
-		[Trait("Category", "integration")]
-		public async Task Publish__Given_Message__When_MessageTooLarge__Then_ReturnError()
-		{
-			var message = new PublishTestMessage
-			{
-				Message = MessageLargerThan32K.Value
-			};
-
-			var response = await Settings.Default.PublishDecryptedChannel
-				.Publish(message, false);
-
-			Assert.False(response.Success);
-			Assert.Equal("Message Too Large", response.Message);
-		}
-
 		[Fact]
 		[Trait("Category", "integration")]
 		public async Task Publish__Given_Message__When_NoSecretKeyAndNotEncrypted__Then_Publish()
