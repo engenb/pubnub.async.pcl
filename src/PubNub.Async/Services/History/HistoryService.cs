@@ -40,11 +40,11 @@ namespace PubNub.Async.Services.History
 			var reverse = order == HistoryOrder.Reverse;
 
 			var batch = await FetchHistory<TContent>(first, last, count, reverse, includeTime);
-			if (reverse && batch.Messages != null)
+			if (reverse && batch?.Messages != null)
 			{
 				batch.Messages = batch.Messages.Reverse().ToArray();
 			}
-			var responseMessageCount = batch.Messages?.Length;
+			var responseMessageCount = batch?.Messages?.Length;
 			if (count > 100 && responseMessageCount == 100) //recurse
 			{
 				var nextBatchCount = count - responseMessageCount;
