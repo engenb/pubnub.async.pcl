@@ -154,7 +154,7 @@ namespace PubNub.Async.Tests.Services.History
 				})
 				.History<HistoryTestMessage>(count: expectedCount, order: HistoryOrder.Reverse);
 
-			Assert.NotNull(response.Messages);
+			Assert.NotNull(response?.Messages);
 			Assert.Equal(expectedCount, response.Messages.Length);
 
 			var messages = response.Messages.ToArray();
