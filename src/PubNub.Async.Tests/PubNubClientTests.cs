@@ -18,7 +18,7 @@ namespace PubNub.Async.Tests
 
 			subject.Secured();
 
-			Assert.False(channel.Secured);
+			Assert.True(channel.Secured);
 		}
 	}
 }
