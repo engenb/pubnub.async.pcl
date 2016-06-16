@@ -4,6 +4,8 @@ using PubNub.Async;
 using PubNub.Async.Configuration;
 using PubNub.Async.Extensions;
 using PubNub.Async.Models.Channel;
+using PubNub.Async.Models.Publish;
+using PubNub.Async.Services.Publish;
 using PubNub.Push.Async.Models;
 using System;
 using System.Threading.Tasks;
@@ -14,11 +16,13 @@ namespace PubNub.Push.Async.Services
     {
         private readonly IPubNubEnvironment _environment;
         private readonly Channel _channel;
+        private readonly IPublishService _publish;
 
-        public PushService(IPubNubClient client)
+        public PushService(IPubNubClient client, IPublishService publish)
         {
             _environment = client.Environment;
             _channel = client.Channel;
+            _publish = publish;
         }
 
         public async Task<PushResponse> Register(DeviceType type, string token)
@@ -61,6 +65,40 @@ namespace PubNub.Push.Async.Services
             }
 
             return response;
+        }
+
+        public Task<PublishResponse> PublishPushNotification(string message, bool isDebug = false)
+        {
+            var payload = new PushPayload
+            {
+                Apns = new ApnsPayload
+                {
+                    Aps = new ApsPayload
+                    {
+                        Alert = message
+                    }
+                },
+                Gcm = new GcmPayload
+                {
+                    Data = new GcmDataPayload
+                    {
+                        Message = message
+                    }
+                },
+                IsDebug = isDebug
+            };
+
+            return PublishPushNotification(payload);
+        }
+
+        public Task<PublishResponse> PublishPushNotification(PushPayload payload)
+        {
+            if (_channel.Encrypted)
+            {
+                throw new InvalidOperationException("Push notifications should not be sent using an encrypted channel");
+            }
+
+            return _publish.Publish(payload, false);
         }
 
         private Url BuildUrl(DeviceType type, string token, string action, string channel)

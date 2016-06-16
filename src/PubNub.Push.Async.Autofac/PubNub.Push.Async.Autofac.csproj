@@ -48,6 +48,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\PubNub.Async\PubNub.Async.csproj">
+      <Project>{FEBF07A0-0BB0-4A33-B216-822D0325CED2}</Project>
+      <Name>PubNub.Async</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PubNub.Push.Async\PubNub.Push.Async.csproj">
       <Project>{BE38930D-65D4-4B71-BDAE-45D5EE1E28AB}</Project>
       <Name>PubNub.Push.Async</Name>

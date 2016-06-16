@@ -25,7 +25,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PubNub.Push.Async", "PubNub
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{98D691E8-8BA0-4E82-8E1F-45FBCF2FF5FD}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Push Notifications", "Push Notifications", "{21D58334-C5A0-4707-9294-92C20C035C26}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Push", "Push", "{21D58334-C5A0-4707-9294-92C20C035C26}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PubNub.Push.Async.Autofac", "PubNub.Push.Async.Autofac\PubNub.Push.Async.Autofac.csproj", "{2C1FA67E-89B8-4553-AE4E-2110713C89D3}"
 EndProject

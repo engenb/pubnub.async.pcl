@@ -45,6 +45,11 @@
   <ItemGroup>
     <Compile Include="Configuration\PubNubPushExtensions.cs" />
     <Compile Include="Extensions\PushExtensions.cs" />
+    <Compile Include="Models\ApnsPayload.cs" />
+    <Compile Include="Models\ApsPayload.cs" />
+    <Compile Include="Models\GcmDataPayload.cs" />
+    <Compile Include="Models\GcmPayload.cs" />
+    <Compile Include="Models\PushPayload.cs" />
     <Compile Include="Models\PushResponse.cs" />
     <Compile Include="Services\IPushService.cs" />
     <Compile Include="Models\DeviceType.cs" />

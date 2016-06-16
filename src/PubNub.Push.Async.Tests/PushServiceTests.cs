@@ -1,6 +1,9 @@
 ﻿using Flurl.Http.Testing;
+using Moq;
 using PubNub.Async;
 using PubNub.Async.Extensions;
+using PubNub.Async.Models.Publish;
+using PubNub.Async.Services.Publish;
 using PubNub.Push.Async.Models;
 using PubNub.Push.Async.Services;
 using System;
@@ -12,7 +15,8 @@ namespace PubNub.Push.Async.Tests
     public class PushServiceTests
     {
         private PushService CreateSubject(
-            IPubNubClient client = null)
+            IPubNubClient client = null,
+            IPublishService publish = null)
         {
             var mockClient = client ??
                 "channel"
@@ -22,7 +26,9 @@ namespace PubNub.Push.Async.Tests
                         c.SslEnabled = true;
                     });
 
-            return new PushService(mockClient);
+            var mockPublish = publish ?? new Mock<IPublishService>().Object;
+
+            return new PushService(mockClient, mockPublish);
         }
 
         [Fact]
@@ -87,6 +93,41 @@ namespace PubNub.Push.Async.Tests
                 var response = await subject.Revoke(DeviceType.Android, "token");
                 Assert.Null(response.Error);
             }
+        }
+
+        [Fact]
+        public async Task Publish__Given_ChannelEncrypted__Then_ThrowsException()
+        {
+            var client = "channel"
+                .ConfigurePubNub(c =>
+                {
+                    c.SubscribeKey = "subkey";
+                    c.SslEnabled = true;
+                })
+                .Encrypted();
+
+            var subject = CreateSubject(client);
+            await Assert.ThrowsAsync<InvalidOperationException>(() => subject.PublishPushNotification("whatever"));
+        }
+
+        [Fact]
+        public async Task Publish__Given_ValidChannel__Then_Publishes()
+        {
+            var message = "weeeeeeeeee";
+            PushPayload payload = null;
+
+            var mockPublish = new Mock<IPublishService>();
+            mockPublish
+                .Setup(mock => mock.Publish(It.IsAny<PushPayload>(), false))
+                .Callback<PushPayload, bool>((p, h) => payload = p)
+                .Returns(Task.FromResult(new PublishResponse()));
+
+            var subject = CreateSubject(publish: mockPublish.Object);
+            var response = await subject.PublishPushNotification(message);
+
+            mockPublish.Verify(mock => mock.Publish(It.IsAny<PushPayload>(), false), Times.Once());
+            Assert.Equal(message, payload.Apns.Aps.Alert);
+            Assert.Equal(message, payload.Gcm.Data.Message);
         }
     }
 }

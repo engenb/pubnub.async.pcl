@@ -1,4 +1,5 @@
-﻿using PubNub.Push.Async.Models;
+﻿using PubNub.Async.Models.Publish;
+using PubNub.Push.Async.Models;
 using System.Threading.Tasks;
 
 namespace PubNub.Push.Async.Services
@@ -8,5 +9,9 @@ namespace PubNub.Push.Async.Services
         Task<PushResponse> Register(DeviceType type, string token);
 
         Task<PushResponse> Revoke(DeviceType type, string token);
+
+        Task<PublishResponse> PublishPushNotification(string message, bool isDebug = false);
+
+        Task<PublishResponse> PublishPushNotification(PushPayload payload);
     }
 }
