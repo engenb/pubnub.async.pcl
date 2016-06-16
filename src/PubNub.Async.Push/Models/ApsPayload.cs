@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace PubNub.Push.Async.Models
+namespace PubNub.Async.Push.Models
 {
     public class ApsPayload
     {

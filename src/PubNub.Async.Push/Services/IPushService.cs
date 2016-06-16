@@ -1,8 +1,8 @@
 ﻿using PubNub.Async.Models.Publish;
-using PubNub.Push.Async.Models;
+using PubNub.Async.Push.Models;
 using System.Threading.Tasks;
 
-namespace PubNub.Push.Async.Services
+namespace PubNub.Async.Push.Services
 {
     public interface IPushService
     {

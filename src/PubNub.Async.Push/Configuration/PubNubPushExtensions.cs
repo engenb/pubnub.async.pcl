@@ -1,9 +1,9 @@
 ﻿using PubNub.Async.Configuration;
 using PubNub.Async.Services.Publish;
-using PubNub.Push.Async.Services;
+using PubNub.Async.Push.Services;
 using System;
 
-namespace PubNub.Push.Async.Configuration
+namespace PubNub.Async.Push.Configuration
 {
     public static class PubNubPushExtensions
     {

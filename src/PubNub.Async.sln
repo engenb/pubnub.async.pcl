@@ -21,17 +21,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PubNub.Async.Autofac", "Pub
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PubNub.Async.Autofac.Tests", "PubNub.Async.Autofac.Tests\PubNub.Async.Autofac.Tests.csproj", "{E47FD4A0-5E7C-41D5-9E7B-7836DD7184EB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PubNub.Push.Async", "PubNub.Push.Async\PubNub.Push.Async.csproj", "{BE38930D-65D4-4B71-BDAE-45D5EE1E28AB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PubNub.Async.Push", "PubNub.Async.Push\PubNub.Async.Push.csproj", "{BE38930D-65D4-4B71-BDAE-45D5EE1E28AB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{98D691E8-8BA0-4E82-8E1F-45FBCF2FF5FD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Push", "Push", "{21D58334-C5A0-4707-9294-92C20C035C26}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PubNub.Push.Async.Autofac", "PubNub.Push.Async.Autofac\PubNub.Push.Async.Autofac.csproj", "{2C1FA67E-89B8-4553-AE4E-2110713C89D3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PubNub.Async.Push.Autofac", "PubNub.Async.Push.Autofac\PubNub.Async.Push.Autofac.csproj", "{2C1FA67E-89B8-4553-AE4E-2110713C89D3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{FA0CE46C-75F1-4EB9-93DA-5AB179418BF0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PubNub.Push.Async.Tests", "PubNub.Push.Async.Tests\PubNub.Push.Async.Tests.csproj", "{15520916-D7D1-4034-8EDE-F7B3825BBBFA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PubNub.Async.Push.Tests", "PubNub.Async.Push.Tests\PubNub.Async.Push.Tests.csproj", "{15520916-D7D1-4034-8EDE-F7B3825BBBFA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

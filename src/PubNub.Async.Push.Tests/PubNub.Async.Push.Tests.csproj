@@ -7,8 +7,8 @@
     <ProjectGuid>{15520916-D7D1-4034-8EDE-F7B3825BBBFA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PubNub.Push.Async.Tests</RootNamespace>
-    <AssemblyName>PubNub.Push.Async.Tests</AssemblyName>
+    <RootNamespace>PubNub.Async.Push.Tests</RootNamespace>
+    <AssemblyName>PubNub.Async.Push.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -106,9 +106,9 @@
       <Project>{febf07a0-0bb0-4a33-b216-822d0325ced2}</Project>
       <Name>PubNub.Async</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PubNub.Push.Async\PubNub.Push.Async.csproj">
+    <ProjectReference Include="..\PubNub.Async.Push\PubNub.Async.Push.csproj">
       <Project>{be38930d-65d4-4b71-bdae-45d5ee1e28ab}</Project>
-      <Name>PubNub.Push.Async</Name>
+      <Name>PubNub.Async.Push</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

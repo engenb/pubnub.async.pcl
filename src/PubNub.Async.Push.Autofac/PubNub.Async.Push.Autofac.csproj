@@ -8,8 +8,8 @@
     <ProjectGuid>{2C1FA67E-89B8-4553-AE4E-2110713C89D3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PubNub.Push.Async.Autofac</RootNamespace>
-    <AssemblyName>PubNub.Push.Async.Autofac</AssemblyName>
+    <RootNamespace>PubNub.Async.Push.Autofac</RootNamespace>
+    <AssemblyName>PubNub.Async.Push.Autofac</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -35,7 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AutofacExtensions.cs" />
-    <Compile Include="PubNubPushAsyncModule.cs" />
+    <Compile Include="PubNubAsyncPushModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -52,9 +52,9 @@
       <Project>{FEBF07A0-0BB0-4A33-B216-822D0325CED2}</Project>
       <Name>PubNub.Async</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PubNub.Push.Async\PubNub.Push.Async.csproj">
+    <ProjectReference Include="..\PubNub.Push.Async\PubNub.Async.Push.csproj">
       <Project>{BE38930D-65D4-4B71-BDAE-45D5EE1E28AB}</Project>
-      <Name>PubNub.Push.Async</Name>
+      <Name>PubNub.Async.Push</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />

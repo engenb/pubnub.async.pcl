@@ -4,13 +4,13 @@ using PubNub.Async;
 using PubNub.Async.Extensions;
 using PubNub.Async.Models.Publish;
 using PubNub.Async.Services.Publish;
-using PubNub.Push.Async.Models;
-using PubNub.Push.Async.Services;
+using PubNub.Async.Push.Models;
+using PubNub.Async.Push.Services;
 using System;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace PubNub.Push.Async.Tests
+namespace PubNub.Async.Push.Tests
 {
     public class PushServiceTests
     {

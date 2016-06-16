@@ -6,11 +6,11 @@ using PubNub.Async.Extensions;
 using PubNub.Async.Models.Channel;
 using PubNub.Async.Models.Publish;
 using PubNub.Async.Services.Publish;
-using PubNub.Push.Async.Models;
+using PubNub.Async.Push.Models;
 using System;
 using System.Threading.Tasks;
 
-namespace PubNub.Push.Async.Services
+namespace PubNub.Async.Push.Services
 {
     public class PushService : IPushService
     {

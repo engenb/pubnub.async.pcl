@@ -1,12 +1,11 @@
 ﻿using Autofac;
-using PubNub.Async;
+using PubNub.Async.Push.Services;
 using PubNub.Async.Services.Publish;
-using PubNub.Push.Async.Services;
 using System;
 
-namespace PubNub.Push.Async.Autofac
+namespace PubNub.Async.Push.Autofac
 {
-    public class PubNubPushAsyncModule : Module
+    public class PubNubAsyncPushModule : Module
     {
         protected override void Load(ContainerBuilder builder)
         {

@@ -1,10 +1,9 @@
-﻿using PubNub.Async;
-using PubNub.Async.Models.Publish;
-using PubNub.Push.Async.Models;
-using PubNub.Push.Async.Services;
+﻿using PubNub.Async.Models.Publish;
+using PubNub.Async.Push.Models;
+using PubNub.Async.Push.Services;
 using System.Threading.Tasks;
 
-namespace PubNub.Push.Async.Extensions
+namespace PubNub.Async.Push.Extensions
 {
     public static class PushExtensions
     {
@@ -13,7 +12,7 @@ namespace PubNub.Push.Async.Extensions
             DeviceType type,
             string token)
         {
-            return await PubNub.Async.PubNub.Environment
+            return await PubNub.Environment
                 .Resolve<IPushService>(client)
                 .Register(type, token);
         }
@@ -23,7 +22,7 @@ namespace PubNub.Push.Async.Extensions
             DeviceType type,
             string token)
         {
-            return await PubNub.Async.PubNub.Environment
+            return await PubNub.Environment
                 .Resolve<IPushService>(client)
                 .Revoke(type, token);
         }
@@ -32,7 +31,7 @@ namespace PubNub.Push.Async.Extensions
             this IPubNubClient client,
             string message)
         {
-            return await PubNub.Async.PubNub.Environment
+            return await PubNub.Environment
                 .Resolve<IPushService>(client)
                 .PublishPush(message);
         }
@@ -41,7 +40,7 @@ namespace PubNub.Push.Async.Extensions
             this IPubNubClient client,
             PushPayload payload)
         {
-            return await PubNub.Async.PubNub.Environment
+            return await PubNub.Environment
                 .Resolve<IPushService>(client)
                 .PublishPush(payload);
         }
