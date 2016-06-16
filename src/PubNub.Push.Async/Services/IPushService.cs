@@ -10,8 +10,8 @@ namespace PubNub.Push.Async.Services
 
         Task<PushResponse> Revoke(DeviceType type, string token);
 
-        Task<PublishResponse> PublishPushNotification(string message, bool isDebug = false);
+        Task<PublishResponse> PublishPush(string message, bool isDebug = false);
 
-        Task<PublishResponse> PublishPushNotification(PushPayload payload);
+        Task<PublishResponse> PublishPush(PushPayload payload);
     }
 }

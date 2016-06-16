@@ -1,4 +1,5 @@
 ﻿using PubNub.Async;
+using PubNub.Async.Models.Publish;
 using PubNub.Push.Async.Models;
 using PubNub.Push.Async.Services;
 using System.Threading.Tasks;
@@ -25,6 +26,24 @@ namespace PubNub.Push.Async.Extensions
             return await PubNub.Async.PubNub.Environment
                 .Resolve<IPushService>(client)
                 .Revoke(type, token);
+        }
+
+        public static async Task<PublishResponse> PublishPush(
+            this IPubNubClient client,
+            string message)
+        {
+            return await PubNub.Async.PubNub.Environment
+                .Resolve<IPushService>(client)
+                .PublishPush(message);
+        }
+
+        public static async Task<PublishResponse> PublishPush(
+            this IPubNubClient client,
+            PushPayload payload)
+        {
+            return await PubNub.Async.PubNub.Environment
+                .Resolve<IPushService>(client)
+                .PublishPush(payload);
         }
     }
 }

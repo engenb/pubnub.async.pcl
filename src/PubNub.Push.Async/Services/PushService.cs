@@ -67,7 +67,7 @@ namespace PubNub.Push.Async.Services
             return response;
         }
 
-        public Task<PublishResponse> PublishPushNotification(string message, bool isDebug = false)
+        public Task<PublishResponse> PublishPush(string message, bool isDebug = false)
         {
             var payload = new PushPayload
             {
@@ -88,10 +88,10 @@ namespace PubNub.Push.Async.Services
                 IsDebug = isDebug
             };
 
-            return PublishPushNotification(payload);
+            return PublishPush(payload);
         }
 
-        public Task<PublishResponse> PublishPushNotification(PushPayload payload)
+        public Task<PublishResponse> PublishPush(PushPayload payload)
         {
             if (_channel.Encrypted)
             {

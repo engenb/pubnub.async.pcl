@@ -107,7 +107,7 @@ namespace PubNub.Push.Async.Tests
                 .Encrypted();
 
             var subject = CreateSubject(client);
-            await Assert.ThrowsAsync<InvalidOperationException>(() => subject.PublishPushNotification("whatever"));
+            await Assert.ThrowsAsync<InvalidOperationException>(() => subject.PublishPush("whatever"));
         }
 
         [Fact]
@@ -123,7 +123,7 @@ namespace PubNub.Push.Async.Tests
                 .Returns(Task.FromResult(new PublishResponse()));
 
             var subject = CreateSubject(publish: mockPublish.Object);
-            var response = await subject.PublishPushNotification(message);
+            var response = await subject.PublishPush(message);
 
             mockPublish.Verify(mock => mock.Publish(It.IsAny<PushPayload>(), false), Times.Once());
             Assert.Equal(message, payload.Apns.Aps.Alert);
