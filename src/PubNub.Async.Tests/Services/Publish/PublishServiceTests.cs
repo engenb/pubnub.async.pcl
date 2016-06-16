@@ -143,7 +143,7 @@ namespace PubNub.Async.Tests.Services.Publish
 
 		public void Dispose()
 		{
-			PubNub.GlobalSettings.Reset();
+			PubNub.Environment.Reset();
 		}
 	}
 }

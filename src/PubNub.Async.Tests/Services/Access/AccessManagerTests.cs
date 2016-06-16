@@ -107,7 +107,7 @@ namespace PubNub.Async.Tests.Services.Access
 					.ShouldHaveCalled($"https://pubsub.pubnub.com/v1/auth/grant/sub-key/{subKey}")
 					.WithVerb(HttpMethod.Get)
 					.With(c => c.Request.RequestUri.Query.Contains($"channel={channel.Name}"))
-					.With(c => c.Request.RequestUri.Query.Contains($"uuid={client.Settings.SessionUuid}"))
+					.With(c => c.Request.RequestUri.Query.Contains($"uuid={client.Environment.SessionUuid}"))
 					.With(c => c.Request.RequestUri.Query.Contains("timestamp="))
 					.With(c => c.Request.RequestUri.Query.Contains($"r={1}"))
 					.With(c => c.Request.RequestUri.Query.Contains($"w={1}"))

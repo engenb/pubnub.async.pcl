@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using PubNub.Async.Models.Channel;
 using PubNub.Async.Models.Publish;
+using PubNub.Async.Services.Publish;
 
 namespace PubNub.Async.Extensions
 {
@@ -29,8 +30,8 @@ namespace PubNub.Async.Extensions
 			TContent message,
 			bool recordHistory = true)
 		{
-			return await PubNub.GlobalSettings
-				.PublishFactory(client)
+			return await PubNub.Environment
+				.Resolve<IPublishService>(client)
 				.Publish(message, recordHistory);
 		}
 	}
