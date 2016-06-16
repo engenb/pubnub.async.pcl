@@ -48,13 +48,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\PubNub.Async.Push\PubNub.Async.Push.csproj">
+      <Project>{be38930d-65d4-4b71-bdae-45d5ee1e28ab}</Project>
+      <Name>PubNub.Async.Push</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PubNub.Async\PubNub.Async.csproj">
       <Project>{FEBF07A0-0BB0-4A33-B216-822D0325CED2}</Project>
       <Name>PubNub.Async</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PubNub.Push.Async\PubNub.Async.Push.csproj">
-      <Project>{BE38930D-65D4-4B71-BDAE-45D5EE1E28AB}</Project>
-      <Name>PubNub.Async.Push</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
