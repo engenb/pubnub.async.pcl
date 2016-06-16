@@ -37,13 +37,14 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Configuration\AbstractPubNubSettings.cs" />
-    <Compile Include="Configuration\ConfigurationExtensions.cs" />
+    <Compile Include="Configuration\AbstractPubNubEnvironment.cs" />
+    <Compile Include="Configuration\IRegisterService.cs" />
     <Compile Include="Extensions\AccessExtensions.cs" />
     <Compile Include="Extensions\ChannelExtensions.cs" />
+    <Compile Include="Extensions\ConfigurationExtensions.cs" />
     <Compile Include="Extensions\HistoryExtensions.cs" />
     <Compile Include="Extensions\HttpResponseMethodPostProcessExtensions.cs" />
-    <Compile Include="Configuration\IPubNubSettings.cs" />
+    <Compile Include="Configuration\IPubNubEnvironment.cs" />
     <Compile Include="Extensions\PublishExtensions.cs" />
     <Compile Include="IPubNubClient.cs" />
     <Compile Include="Models\Access\AccessGrantResponse.cs" />
@@ -58,7 +59,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PubNub.cs" />
     <Compile Include="PubNubClient.cs" />
-    <Compile Include="Configuration\DefaultPubNubSettings.cs" />
+    <Compile Include="Configuration\DefaultPubNubEnvironment.cs" />
     <Compile Include="Services\Access\AccessManager.cs" />
     <Compile Include="Services\Access\AccessRegistry.cs" />
     <Compile Include="Services\Access\AccessType.cs" />
