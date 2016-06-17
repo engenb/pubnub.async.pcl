@@ -7,7 +7,6 @@ using System.Reflection;
 [assembly: AssemblyTitle("PubNub.Async.Push")]
 [assembly: AssemblyDescription("adds push notification api to pubnub.async")]
 [assembly: AssemblyCulture("")]
-[assembly: NeutralResourcesLanguage("en")]
 
 [assembly: AssemblyVersion("0.0.0.0")]
 [assembly: AssemblyFileVersion("0.0.0.0")]

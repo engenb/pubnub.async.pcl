@@ -5,7 +5,6 @@
 // associated with an assembly.
 [assembly: AssemblyTitle("PubNub.Async.Push.Autofac")]
 [assembly: AssemblyDescription("PubNub push notification configuration via autofac")]
-[assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCulture("")]
 
 [assembly: AssemblyVersion("0.0.0.0")]
