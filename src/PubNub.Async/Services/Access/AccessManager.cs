@@ -44,7 +44,7 @@ namespace PubNub.Async.Services.Access
 			}
 
 			// if access grant is in force, return cached result
-			if (AccessRegistry.InForce(Channel, Environment.AuthenticationKey))
+			if (AccessRegistry.Granted(Channel, Environment.AuthenticationKey))
 			{
 				return await AccessRegistry.Registration(Channel, Environment.AuthenticationKey);
 			}
@@ -82,12 +82,12 @@ namespace PubNub.Async.Services.Access
 				requestUrl.Query);
 			requestUrl.SetQueryParam("signature", Sign(Environment.SecretKey, signature), true);
 
-			var responseMessage = await requestUrl.GetAsync();
+			var rawResponse = await requestUrl.GetAsync()
+				.ProcessResponse()
+				.ReceiveString();
 
-			var response = await DeserializeResponse(responseMessage);
-
-			//TODO: handle error
-
+			var response = DeserializeResponse(rawResponse);
+			
 			await AccessRegistry.Register(Channel, Environment.AuthenticationKey, response);
 			return response;
 		}
@@ -119,13 +119,9 @@ namespace PubNub.Async.Services.Access
 				.Replace('/', '_');
 		}
 
-		private async Task<AccessGrantResponse> DeserializeResponse(HttpResponseMessage response)
+		private AccessGrantResponse DeserializeResponse(string rawResponse)
 		{
-			var rawContent = await response
-				.StripCharsetQuotes()
-				.Content
-				.ReadAsStringAsync();
-			return JsonConvert.DeserializeObject<AccessGrantResponse>(rawContent);
+			return JsonConvert.DeserializeObject<AccessGrantResponse>(rawResponse);
 		}
 	}
 }

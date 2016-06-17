@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -19,8 +20,8 @@ namespace PubNub.Async.Services.Access
 
 		public AccessRegistry()
 		{
-			ExpirationRegistry = new Dictionary<string, long>();
-			ResponseRegistry = new Dictionary<string, byte[]>();
+			ExpirationRegistry = new ConcurrentDictionary<string, long>();
+			ResponseRegistry = new ConcurrentDictionary<string, byte[]>();
 
 			//TODO: launch thread to clean registry (expired grant responses)
 		}
@@ -41,7 +42,7 @@ namespace PubNub.Async.Services.Access
 				: null;
 		}
 
-		public bool InForce(Channel channel, string authenticationKey)
+		public bool Granted(Channel channel, string authenticationKey)
 		{
 			var key = KeyFor(channel, authenticationKey);
 			return ExpirationRegistry.ContainsKey(key) && ExpirationRegistry[key] > DateTime.UtcNow.Ticks;

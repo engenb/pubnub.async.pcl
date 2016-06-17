@@ -43,6 +43,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Configuration\PubNubPushExtensions.cs" />
     <Compile Include="Extensions\PushExtensions.cs" />
     <Compile Include="Models\ApnsPayload.cs" />

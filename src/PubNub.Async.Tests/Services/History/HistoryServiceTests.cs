@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Flurl.Http.Testing;
 using Moq;
 using Newtonsoft.Json;
-using PubNub.Async.Configuration;
 using PubNub.Async.Extensions;
 using PubNub.Async.Services.Access;
 using PubNub.Async.Services.Crypto;
@@ -70,7 +69,7 @@ namespace PubNub.Async.Tests.Services.History
 			}
 		}
 
-		[Fact(Skip = "L&L")]
+		[Fact]
 		[Trait("Category", "integration")]
 		public async Task History__Given_ConfiguredPubNubWithSSL__When_HistoryNotEnabled__Then_GetError()
 		{
@@ -89,14 +88,14 @@ namespace PubNub.Async.Tests.Services.History
 			Assert.Equal(expectedError, response.Error);
 		}
 
-		[Fact(Skip = "L&L")]
+		[Fact]
 		[Trait("Category", "integration")]
 		public async Task History__Given_ConfiguredPubNubWithSSL__When_UnencryptedCountIsThreeAndReverse__Then_GetFirstThree()
 		{
 			var expectedCount = 3;
 
 			var response = await Settings.Default.HistoryDecryptedChannel
-				.ConfigurePubNub(c => { c.SubscribeKey = Settings.Default.SubscribeKey; })
+				.ConfigurePubNub(c => c.SubscribeKey = Settings.Default.SubscribeKey)
 				.History<HistoryTestMessage>(count: expectedCount, order: HistoryOrder.Reverse);
 
 			Assert.NotNull(response.Messages);
@@ -114,14 +113,14 @@ namespace PubNub.Async.Tests.Services.History
 			Assert.Equal(14621647091558573L, response.Newest);
 		}
 
-		[Fact(Skip = "L&L")]
+		[Fact]
 		[Trait("Category", "integration")]
 		public async Task History__Given_ConfiguredPubNubWithSSL__When_TimeOmitted__Then_GetFirstThreeWithoutTime()
 		{
 			var expectedCount = 3;
 
 			var response = await Settings.Default.HistoryDecryptedChannel
-				.ConfigurePubNub(c => { c.SubscribeKey = Settings.Default.SubscribeKey; })
+				.ConfigurePubNub(c => c.SubscribeKey = Settings.Default.SubscribeKey)
 				.History<HistoryTestMessage>(count: expectedCount, order: HistoryOrder.Reverse, includeTime: false);
 
 			Assert.NotNull(response.Messages);
@@ -139,7 +138,7 @@ namespace PubNub.Async.Tests.Services.History
 			Assert.Equal(14621647091558573L, response.Newest);
 		}
 
-		[Fact(Skip = "L&L")]
+		[Fact]
 		[Trait("Category", "integration")]
 		public async Task History__Given_ConfiguredPubNubWithSSL__When_EncryptedCountIsThreeAndReverse__Then_GetDecryptFirstThree()
 		{
@@ -147,11 +146,7 @@ namespace PubNub.Async.Tests.Services.History
 
 			var response = await Settings.Default.HistoryEncryptedChannel
 				.EncryptedWith(Settings.Default.CipherKey)
-				.ConfigurePubNub(c =>
-				{
-					c.SubscribeKey = Settings.Default.SubscribeKey;
-					c.CipherKey = Settings.Default.CipherKey;
-				})
+				.ConfigurePubNub(c => c.SubscribeKey = Settings.Default.SubscribeKey)
 				.History<HistoryTestMessage>(count: expectedCount, order: HistoryOrder.Reverse);
 
 			Assert.NotNull(response?.Messages);
@@ -169,7 +164,7 @@ namespace PubNub.Async.Tests.Services.History
 			Assert.Equal(14646739500961712L, response.Newest);
 		}
 
-		[Fact(Skip = "L&L")]
+		[Fact]
 		[Trait("Category" ,"integration")]
 		public async Task History__Given_ConfiguredPubNub__When_Count250Reverse__Then_Fetch250InReverseOrder()
 		{
@@ -179,11 +174,7 @@ namespace PubNub.Async.Tests.Services.History
 
 			var response = await Settings.Default.HistoryEncryptedHighVolumeChannel
 				.EncryptedWith(Settings.Default.CipherKey)
-				.ConfigurePubNub(c =>
-				{
-					c.SubscribeKey = Settings.Default.SubscribeKey;
-					c.PublishKey = Settings.Default.PublishKey;
-				})
+				.ConfigurePubNub(c => c.SubscribeKey = Settings.Default.SubscribeKey)
 				.History<HistoryTestMessage>(count: expectedCount, order: HistoryOrder.Reverse);
 
 			Assert.NotNull(response.Messages);
@@ -200,7 +191,7 @@ namespace PubNub.Async.Tests.Services.History
 			}
 		}
 
-		[Fact(Skip = "L&L")]
+		[Fact]
 		[Trait("Category", "integration")]
 		public async Task History__Given_ConfiguredPubNub__When_Count250__Then_Fetch250InChronologicalOrder()
 		{
@@ -210,11 +201,7 @@ namespace PubNub.Async.Tests.Services.History
 
 			var response = await Settings.Default.HistoryEncryptedHighVolumeChannel
 				.EncryptedWith(Settings.Default.CipherKey)
-				.ConfigurePubNub(c =>
-				{
-					c.SubscribeKey = Settings.Default.SubscribeKey;
-					c.PublishKey = Settings.Default.PublishKey;
-				})
+				.ConfigurePubNub(c => c.SubscribeKey = Settings.Default.SubscribeKey)
 				.History<HistoryTestMessage>(count: expectedCount, order: HistoryOrder.Chronological);
 
 			Assert.NotNull(response.Messages);
