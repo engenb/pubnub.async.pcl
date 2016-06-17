@@ -113,7 +113,7 @@ namespace PubNub.Async.Tests.Services.Publish
 			mockCrypto.Verify(x => x.Encrypt(expectedCipher, It.IsAny<string>()), Times.Once);
 		}
 
-		[Fact(Skip = "L&L")]
+		[Fact]
 		[Trait("Category", "integration")]
 		public async Task Publish__Given_Message__When_NoSecretKeyAndNotEncrypted__Then_Publish()
 		{
