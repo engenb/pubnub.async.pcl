@@ -1,6 +1,5 @@
 ﻿using Flurl;
 using Flurl.Http;
-using PubNub.Async;
 using PubNub.Async.Configuration;
 using PubNub.Async.Extensions;
 using PubNub.Async.Models.Channel;
@@ -14,25 +13,25 @@ namespace PubNub.Async.Push.Services
 {
     public class PushService : IPushService
     {
-        private readonly IPubNubEnvironment _environment;
-        private readonly Channel _channel;
-        private readonly IPublishService _publish;
+        private IPubNubEnvironment Environment { get; }
+        private Channel Channel { get; }
+        private IPublishService Publish { get; }
 
         public PushService(IPubNubClient client, IPublishService publish)
         {
-            _environment = client.Environment;
-            _channel = client.Channel;
-            _publish = publish;
+			Environment = client.Environment;
+			Channel = client.Channel;
+			Publish = publish;
         }
 
         public async Task<PushResponse> Register(DeviceType type, string token)
         {
-            if (String.IsNullOrWhiteSpace(token))
+            if (string.IsNullOrWhiteSpace(token))
             {
                 throw new ArgumentException("Cannot be null or empty", nameof(token));
             }
 
-            var requestUrl = BuildUrl(type, token, "add", _channel.Name);
+            var requestUrl = BuildUrl(type, token, "add", Channel.Name);
             var response = new PushResponse();
             var result = await requestUrl.GetAsync()
                 .ProcessResponse()
@@ -48,12 +47,12 @@ namespace PubNub.Async.Push.Services
 
         public async Task<PushResponse> Revoke(DeviceType type, string token)
         {
-            if (String.IsNullOrWhiteSpace(token))
+            if (string.IsNullOrWhiteSpace(token))
             {
                 throw new ArgumentException("Cannot be null or empty", nameof(token));
             }
 
-            var requestUrl = BuildUrl(type, token, "remove", _channel.Name);
+            var requestUrl = BuildUrl(type, token, "remove", Channel.Name);
             var response = new PushResponse();
             var result = await requestUrl.GetAsync()
                 .ProcessResponse()
@@ -93,17 +92,17 @@ namespace PubNub.Async.Push.Services
 
         public Task<PublishResponse> PublishPush(PushPayload payload)
         {
-            if (_channel.Encrypted)
+            if (Channel.Encrypted)
             {
                 throw new InvalidOperationException("Push notifications should not be sent using an encrypted channel");
             }
 
-            return _publish.Publish(payload, false);
+            return Publish.Publish(payload, false);
         }
 
         private Url BuildUrl(DeviceType type, string token, string action, string channel)
         {
-            var pushService = String.Empty;
+            var pushService = string.Empty;
             switch (type)
             {
                 case DeviceType.Android:
@@ -119,9 +118,9 @@ namespace PubNub.Async.Push.Services
                     break;
             }
 
-            return _environment.Host
+            return Environment.Host
                 .AppendPathSegments("v1", "push")
-                .AppendPathSegments("sub-key", _environment.SubscribeKey)
+                .AppendPathSegments("sub-key", Environment.SubscribeKey)
                 .AppendPathSegments("devices", token)
                 .SetQueryParam("type", pushService)
                 .SetQueryParam("action", channel);

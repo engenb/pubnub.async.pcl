@@ -118,7 +118,7 @@ namespace PubNub.Async.Tests.Services.Publish
 			Assert.True(response.Sent > 0);
 		}
 
-		[Fact(Skip = "L&L")]
+		[Fact]
 		[Trait("Category", "integration")]
 		public async Task Publish__Given_Message__When_NoSecretKeyAndEncrypted__Then_Publish()
 		{
