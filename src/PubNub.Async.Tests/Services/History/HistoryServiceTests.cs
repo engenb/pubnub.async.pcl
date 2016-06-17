@@ -70,7 +70,7 @@ namespace PubNub.Async.Tests.Services.History
 			}
 		}
 
-		[Fact(Skip = "L&L")]
+		[Fact]
 		[Trait("Category", "integration")]
 		public async Task History__Given_ConfiguredPubNubWithSSL__When_HistoryNotEnabled__Then_GetError()
 		{
@@ -89,7 +89,7 @@ namespace PubNub.Async.Tests.Services.History
 			Assert.Equal(expectedError, response.Error);
 		}
 
-		[Fact(Skip = "L&L")]
+		[Fact]
 		[Trait("Category", "integration")]
 		public async Task History__Given_ConfiguredPubNubWithSSL__When_UnencryptedCountIsThreeAndReverse__Then_GetFirstThree()
 		{
@@ -114,7 +114,7 @@ namespace PubNub.Async.Tests.Services.History
 			Assert.Equal(14621647091558573L, response.Newest);
 		}
 
-		[Fact(Skip = "L&L")]
+		[Fact]
 		[Trait("Category", "integration")]
 		public async Task History__Given_ConfiguredPubNubWithSSL__When_TimeOmitted__Then_GetFirstThreeWithoutTime()
 		{
@@ -139,7 +139,7 @@ namespace PubNub.Async.Tests.Services.History
 			Assert.Equal(14621647091558573L, response.Newest);
 		}
 
-		[Fact(Skip = "L&L")]
+		[Fact]
 		[Trait("Category", "integration")]
 		public async Task History__Given_ConfiguredPubNubWithSSL__When_EncryptedCountIsThreeAndReverse__Then_GetDecryptFirstThree()
 		{
@@ -165,7 +165,7 @@ namespace PubNub.Async.Tests.Services.History
 			Assert.Equal(14646739500961712L, response.Newest);
 		}
 
-		[Fact(Skip = "L&L")]
+		[Fact]
 		[Trait("Category" ,"integration")]
 		public async Task History__Given_ConfiguredPubNub__When_Count250Reverse__Then_Fetch250InReverseOrder()
 		{
@@ -192,7 +192,7 @@ namespace PubNub.Async.Tests.Services.History
 			}
 		}
 
-		[Fact(Skip = "L&L")]
+		[Fact]
 		[Trait("Category", "integration")]
 		public async Task History__Given_ConfiguredPubNub__When_Count250__Then_Fetch250InChronologicalOrder()
 		{

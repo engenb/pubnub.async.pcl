@@ -117,7 +117,7 @@ namespace PubNub.Async.Tests.Services.Access
 			}
 		}
 
-		[Fact(Skip = "L&L")]
+		[Fact]
 		[Trait("Category", "integration")]
 		public async Task Establish__Given_ChannelAndConfiguredClient__When_Unregistered__Then_GrantRequestAndRegisterResponse()
 		{
