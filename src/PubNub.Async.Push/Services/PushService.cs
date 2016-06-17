@@ -1,12 +1,11 @@
 ﻿using Flurl;
 using Flurl.Http;
-using PubNub.Async;
 using PubNub.Async.Configuration;
 using PubNub.Async.Extensions;
 using PubNub.Async.Models.Channel;
 using PubNub.Async.Models.Publish;
-using PubNub.Async.Services.Publish;
 using PubNub.Async.Push.Models;
+using PubNub.Async.Services.Publish;
 using System;
 using System.Threading.Tasks;
 
@@ -32,7 +31,7 @@ namespace PubNub.Async.Push.Services
                 throw new ArgumentException("Cannot be null or empty", nameof(token));
             }
 
-            var requestUrl = BuildUrl(type, token, "add", _channel.Name);
+            var requestUrl = BuildUrl(type, token, "add");
             var response = new PushResponse();
             var result = await requestUrl.GetAsync()
                 .ProcessResponse()
@@ -53,7 +52,7 @@ namespace PubNub.Async.Push.Services
                 throw new ArgumentException("Cannot be null or empty", nameof(token));
             }
 
-            var requestUrl = BuildUrl(type, token, "remove", _channel.Name);
+            var requestUrl = BuildUrl(type, token, "remove");
             var response = new PushResponse();
             var result = await requestUrl.GetAsync()
                 .ProcessResponse()
@@ -101,7 +100,7 @@ namespace PubNub.Async.Push.Services
             return _publish.Publish(payload, false);
         }
 
-        private Url BuildUrl(DeviceType type, string token, string action, string channel)
+        private Url BuildUrl(DeviceType type, string token, string action)
         {
             var pushService = String.Empty;
             switch (type)
@@ -124,7 +123,7 @@ namespace PubNub.Async.Push.Services
                 .AppendPathSegments("sub-key", _environment.SubscribeKey)
                 .AppendPathSegments("devices", token)
                 .SetQueryParam("type", pushService)
-                .SetQueryParam("action", channel);
+                .SetQueryParam(action, _channel.Name);
         }
     }
 }
