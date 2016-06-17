@@ -47,7 +47,8 @@ namespace PubNub.Async.Push.Tests
             {
                 httpTest.RespondWithJson(200, null);
                 var response = await subject.Register(DeviceType.Android, "token");
-                Assert.NotNull(response.Error);
+                Assert.False(response.Success);
+                Assert.NotNull(response.Message);
             }
         }
 
@@ -57,9 +58,10 @@ namespace PubNub.Async.Push.Tests
             var subject = CreateSubject();
             using (var httpTest = new HttpTest())
             {
-                httpTest.RespondWithJson(200, new object[] { });
+                httpTest.RespondWithJson(200, new object[] { 1, "Modified Channels" });
                 var response = await subject.Register(DeviceType.Android, "token");
-                Assert.Null(response.Error);
+                Assert.True(response.Success);
+                Assert.Null(response.Message);
             }
         }
 
@@ -79,7 +81,8 @@ namespace PubNub.Async.Push.Tests
             {
                 httpTest.RespondWithJson(200, null);
                 var response = await subject.Revoke(DeviceType.Android, "token");
-                Assert.NotNull(response.Error);
+                Assert.False(response.Success);
+                Assert.NotNull(response.Message);
             }
         }
 
@@ -89,9 +92,10 @@ namespace PubNub.Async.Push.Tests
             var subject = CreateSubject();
             using (var httpTest = new HttpTest())
             {
-                httpTest.RespondWithJson(200, new object[] { });
+                httpTest.RespondWithJson(200, new object[] { 1, "Modified Channels" });
                 var response = await subject.Revoke(DeviceType.Android, "token");
-                Assert.Null(response.Error);
+                Assert.True(response.Success);
+                Assert.Null(response.Message);
             }
         }
 
