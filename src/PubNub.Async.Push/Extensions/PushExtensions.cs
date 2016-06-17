@@ -3,7 +3,6 @@ using PubNub.Async.Models.Publish;
 using PubNub.Async.Push.Models;
 using PubNub.Async.Push.Services;
 using System.Threading.Tasks;
-using PubNub.Async.Models.Channel;
 
 namespace PubNub.Async.Push.Extensions
 {
@@ -35,7 +34,7 @@ namespace PubNub.Async.Push.Extensions
             return await PubNub.Environment
                 .Resolve<IPushService>(client)
                 .Register(type, token);
-		}
+        }
 
         public static async Task<PushResponse> RevokeDeviceForPush(
             this string channel,
