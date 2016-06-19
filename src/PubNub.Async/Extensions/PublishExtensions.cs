@@ -32,7 +32,8 @@ namespace PubNub.Async.Extensions
 		{
 			return await PubNub.Environment
 				.Resolve<IPublishService>(client)
-				.Publish(message, recordHistory);
+				.Publish(message, recordHistory)
+				.ConfigureAwait(false);
 		}
 	}
 }

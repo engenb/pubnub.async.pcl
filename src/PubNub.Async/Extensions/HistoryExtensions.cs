@@ -41,7 +41,8 @@ namespace PubNub.Async.Extensions
 		{
 			return await PubNub.Environment
 				.Resolve<IHistoryService>(client)
-				.History<TContent>(start, end, count, order, includeTime);
+				.History<TContent>(start, end, count, order, includeTime)
+				.ConfigureAwait(false);
 		}
 	}
 }

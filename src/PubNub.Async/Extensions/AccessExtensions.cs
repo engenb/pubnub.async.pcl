@@ -23,7 +23,8 @@ namespace PubNub.Async.Extensions
 		{
 			return await PubNub.Environment
 				.Resolve<IAccessManager>(client)
-				.Establish(access);
+				.Establish(access)
+				.ConfigureAwait(false);
 		}
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using PubNub.Async.Services.Access;
 using PubNub.Async.Services.Crypto;
@@ -51,7 +52,7 @@ namespace PubNub.Async.Configuration
 		}
 		#endregion
 
-		private Dictionary<Type, Func<IPubNubClient, object>> Services { get; }
+		private ConcurrentDictionary<Type, Func<IPubNubClient, object>> Services { get; }
 
 		/// <summary>
 		/// DefaultPubNubEnvironment utilizes a flavor of the infamous service locator pattern.
@@ -60,7 +61,7 @@ namespace PubNub.Async.Configuration
 		/// </summary>
 		public DefaultPubNubEnvironment()
 		{
-			Services = new Dictionary<Type, Func<IPubNubClient, object>>();
+			Services = new ConcurrentDictionary<Type, Func<IPubNubClient, object>>();
 
 			Register<ICryptoService>(client => CryptoInstance);
 			Register<IAccessManager>(client => new AccessManager(client, RegistryInstance));
