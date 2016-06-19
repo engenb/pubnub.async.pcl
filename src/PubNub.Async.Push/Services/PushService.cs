@@ -16,23 +16,23 @@ namespace PubNub.Async.Push.Services
 {
     public class PushService : IPushService
     {
-        private readonly IPubNubEnvironment _environment;
-        private readonly Channel _channel;
-        private readonly IPublishService _publish;
+        private IPubNubEnvironment Environment { get; }
+        private Channel Channel { get; }
+        private IPublishService Publish { get; }
 
         public const string DEVICE_SUCCESS_COUNT = "1";
         public const string DEVICE_SUCCESS_MESSAGE = "Modified Channels";
 
         public PushService(IPubNubClient client, IPublishService publish)
         {
-            _environment = client.Environment;
-            _channel = client.Channel;
-            _publish = publish;
+			Environment = client.Environment;
+			Channel = client.Channel;
+			Publish = publish;
         }
 
         public async Task<PushResponse> Register(DeviceType type, string token)
         {
-            if (String.IsNullOrWhiteSpace(token))
+            if (string.IsNullOrWhiteSpace(token))
             {
                 throw new ArgumentException("Cannot be null or empty", nameof(token));
             }
@@ -115,9 +115,9 @@ namespace PubNub.Async.Push.Services
                     break;
             }
 
-            return _environment.Host
+            return Environment.Host
                 .AppendPathSegments("v1", "push")
-                .AppendPathSegments("sub-key", _environment.SubscribeKey)
+                .AppendPathSegments("sub-key", Environment.SubscribeKey)
                 .AppendPathSegments("devices", token)
                 .SetQueryParam("type", pushService)
                 .SetQueryParam(action, Channel.Name);
