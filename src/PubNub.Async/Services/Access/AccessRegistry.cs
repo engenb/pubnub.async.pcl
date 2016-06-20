@@ -26,19 +26,19 @@ namespace PubNub.Async.Services.Access
 			//TODO: launch thread to clean registry (expired grant responses)
 		}
 
-		public async Task Register(Channel channel, string authenticationKey, AccessGrantResponse response)
+		public async Task Register(Channel channel, string authenticationKey, GrantResponse grant)
 		{
 			var key = KeyFor(channel, authenticationKey);
-			var expiration = DateTime.UtcNow.AddMinutes(response.Paylaod.MintuesToExpire).Ticks;
+			var expiration = DateTime.UtcNow.AddMinutes(grant.MinutesToExpire).Ticks;
 			ExpirationRegistry[key] = expiration;
-			ResponseRegistry[key] = await Compress(JsonConvert.SerializeObject(response));
+			ResponseRegistry[key] = await Compress(JsonConvert.SerializeObject(grant));
 		}
 
-		public async Task<AccessGrantResponse> Registration(Channel channel, string authenticationKey)
+		public async Task<GrantResponse> Registration(Channel channel, string authenticationKey)
 		{
 			var key = KeyFor(channel, authenticationKey);
 			return ResponseRegistry.ContainsKey(key)
-				? JsonConvert.DeserializeObject<AccessGrantResponse>(await Decompress(ResponseRegistry[key]))
+				? JsonConvert.DeserializeObject<GrantResponse>(await Decompress(ResponseRegistry[key]))
 				: null;
 		}
 
@@ -50,7 +50,18 @@ namespace PubNub.Async.Services.Access
 
 		public void Unregister(Channel channel, string authenticationKey)
 		{
-			throw new System.NotImplementedException();
+			if (channel == null) throw new ArgumentNullException(nameof(channel));
+			if (string.IsNullOrWhiteSpace(authenticationKey)) throw new ArgumentNullException(nameof(authenticationKey));
+
+			var key = KeyFor(channel, authenticationKey);
+			if (ExpirationRegistry.ContainsKey(key))
+			{
+				ExpirationRegistry.Remove(key);
+			}
+			if (ResponseRegistry.ContainsKey(key))
+			{
+				ResponseRegistry.Remove(key);
+			}
 		}
 
 		private static string KeyFor(Channel channel, string authenticationKey)

@@ -6,8 +6,8 @@ namespace PubNub.Async.Services.Access
 {
 	public interface IAccessRegistry
 	{
-		Task Register(Channel channel, string authenticationKey, AccessGrantResponse response);
-		Task<AccessGrantResponse> Registration(Channel channel, string authenticationKey);
+		Task Register(Channel channel, string authenticationKey, GrantResponse grant);
+		Task<GrantResponse> Registration(Channel channel, string authenticationKey);
 		bool Granted(Channel channel, string authenticationKey);
 		void Unregister(Channel channel, string authenticationKey);
 	}

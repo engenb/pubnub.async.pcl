@@ -7,6 +7,7 @@ using Moq;
 using Newtonsoft.Json;
 using Ploeh.AutoFixture;
 using PubNub.Async.Extensions;
+using PubNub.Async.Models;
 using PubNub.Async.Models.Access;
 using PubNub.Async.Models.Channel;
 using PubNub.Async.Services.Access;
@@ -29,7 +30,7 @@ namespace PubNub.Async.Tests.Services.Access
 		[Fact]
 		public async Task Establish__Given_ChannelAndConfiguredClient__When_PreviouslyRegistered__Then_ReturnCachedResponse()
 		{
-			var expected = Fixture.Create<AccessGrantResponse>();
+			var expected = Fixture.Create<GrantResponse>();
 
 			var channel = new Channel("channel");
 			var secKey = Guid.NewGuid().ToString();
@@ -61,12 +62,12 @@ namespace PubNub.Async.Tests.Services.Access
 		public async Task Establish__Given_ChannelAndConfiguredClient__When_Unregistered__Then_GrantAndRegisterResponse()
 		{
 			var paylaod = Fixture
-				.Build<AccessGrantResponsePayload>()
+				.Build<PubNubGrantResponsePayload>()
 				.With(x => x.MintuesToExpire, 5)
 				.Create();
 
 			var expected = Fixture
-				.Build<AccessGrantResponse>()
+				.Build<PubNubGrantResponse>()
 				.With(x => x.Paylaod, paylaod)
 				.Create();
 
@@ -119,8 +120,12 @@ namespace PubNub.Async.Tests.Services.Access
 
 		[Fact]
 		[Trait("Category", "integration")]
-		public async Task Establish__Given_ChannelAndConfiguredClient__When_Unregistered__Then_GrantRequestAndRegisterResponse()
+		public async Task Establish__Given_ChannelAndConfiguredClient__When_UnregisteredNoTTL__Then_GrantRequestAndRegisterResponse()
 		{
+			var expectedMessage = "Success";
+			var expectedMinutesToExpire = 1440; //pn default
+			var expectedAccess = AccessType.ReadWrite;
+
 			var authKey = "test-auth";
 
 			var response = await "test-channel"
@@ -134,7 +139,10 @@ namespace PubNub.Async.Tests.Services.Access
 				.SecuredWith(authKey)
 				.Grant(AccessType.ReadWrite);
 
-			Assert.Equal(HttpStatusCode.OK, response.Status);
+			Assert.True(response.Success);
+			Assert.Equal(expectedMessage, response.Message);
+			Assert.Equal(expectedMinutesToExpire, response.MinutesToExpire);
+			Assert.Equal(expectedAccess, response.Access);
 		}
 	}
 }
