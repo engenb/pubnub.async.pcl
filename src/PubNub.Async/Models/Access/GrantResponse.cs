@@ -1,4 +1,5 @@
-﻿using PubNub.Async.Services.Access;
+﻿using System;
+using PubNub.Async.Services.Access;
 
 namespace PubNub.Async.Models.Access
 {

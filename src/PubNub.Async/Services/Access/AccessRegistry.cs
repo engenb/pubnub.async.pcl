@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Threading.Tasks;
+using Flurl.Util;
 using Newtonsoft.Json;
 using PubNub.Async.Models.Access;
 using PubNub.Async.Models.Channel;
@@ -15,12 +16,12 @@ namespace PubNub.Async.Services.Access
 	{
 		//TODO: this registry could potentially get very large/bloated
 		//TODO: maybe make this more robust with some sort of cache impl
-		private IDictionary<string, long> ExpirationRegistry { get; }
+		private IDictionary<string, AccessRegistration> Registry { get; }
 		private IDictionary<string, byte[]> ResponseRegistry { get; }
 
 		public AccessRegistry()
 		{
-			ExpirationRegistry = new ConcurrentDictionary<string, long>();
+			Registry = new ConcurrentDictionary<string, AccessRegistration>();
 			ResponseRegistry = new ConcurrentDictionary<string, byte[]>();
 
 			//TODO: launch thread to clean registry (expired grant responses)
@@ -30,22 +31,27 @@ namespace PubNub.Async.Services.Access
 		{
 			var key = KeyFor(channel, authenticationKey);
 			var expiration = DateTime.UtcNow.AddMinutes(grant.MinutesToExpire).Ticks;
-			ExpirationRegistry[key] = expiration;
+
+			Registry[key] = new AccessRegistration
+			{
+				ReadExpires = grant.Access.GrantsRead() ? expiration : (long?)null,
+				WriteExpires = grant.Access.GrantsWrite() ? expiration : (long?)null
+			};
 			ResponseRegistry[key] = await Compress(JsonConvert.SerializeObject(grant));
 		}
 
-		public async Task<GrantResponse> Registration(Channel channel, string authenticationKey)
+		public async Task<GrantResponse> CachedRegistration(Channel channel, string authenticationKey)
 		{
 			var key = KeyFor(channel, authenticationKey);
-			return ResponseRegistry.ContainsKey(key)
+			return Registry.ContainsKey(key)
 				? JsonConvert.DeserializeObject<GrantResponse>(await Decompress(ResponseRegistry[key]))
 				: null;
 		}
 
-		public bool Granted(Channel channel, string authenticationKey)
+		public bool Granted(Channel channel, string authenticationKey, AccessType access)
 		{
 			var key = KeyFor(channel, authenticationKey);
-			return ExpirationRegistry.ContainsKey(key) && ExpirationRegistry[key] > DateTime.UtcNow.Ticks;
+			return Registry.ContainsKey(key) && Registry[key].AccessValid(access);
 		}
 
 		public void Unregister(Channel channel, string authenticationKey)
@@ -54,9 +60,9 @@ namespace PubNub.Async.Services.Access
 			if (string.IsNullOrWhiteSpace(authenticationKey)) throw new ArgumentNullException(nameof(authenticationKey));
 
 			var key = KeyFor(channel, authenticationKey);
-			if (ExpirationRegistry.ContainsKey(key))
+			if (Registry.ContainsKey(key))
 			{
-				ExpirationRegistry.Remove(key);
+				Registry.Remove(key);
 			}
 			if (ResponseRegistry.ContainsKey(key))
 			{
