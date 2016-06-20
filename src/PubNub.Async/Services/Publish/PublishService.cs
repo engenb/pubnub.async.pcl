@@ -6,6 +6,8 @@ using Newtonsoft.Json.Linq;
 using PCLCrypto;
 using PubNub.Async.Configuration;
 using PubNub.Async.Extensions;
+using PubNub.Async.Models;
+using PubNub.Async.Models.Access;
 using PubNub.Async.Models.Channel;
 using PubNub.Async.Models.Publish;
 using PubNub.Async.Services.Access;
@@ -40,7 +42,7 @@ namespace PubNub.Async.Services.Publish
 			if (Channel.Secured)
 			{
 				var grantResponse = await Access.Establish(AccessType.Write);
-				//if (!grantResponse.Success)
+				if (!grantResponse.Success)
 				{
 					//TODO: do something
 				}

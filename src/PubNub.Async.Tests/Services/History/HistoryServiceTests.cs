@@ -247,6 +247,7 @@ namespace PubNub.Async.Tests.Services.History
 		}
 
 		[Fact]
+		[Trait("Category", "integration")]
 		public async Task History__Given_ConfiguredPubNub__When_Count250__Then_Fetch250InChronologicalOrder()
 		{
 			var expectedCount = 250;
