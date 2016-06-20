@@ -126,6 +126,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="Models\Access\AccessRegistrationTests.cs" />
     <Compile Include="Models\Channel\ChannelTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PubNubClientTests.cs" />

@@ -43,10 +43,10 @@ namespace PubNub.Async.Services.Access
 				//TODO: warn grant on unsecured channel
 			}
 
-			// if access grant is in force, return cached result
-			if (AccessRegistry.Granted(Channel, Environment.AuthenticationKey))
+			// if access was previously granted, return cached result
+			if (AccessRegistry.Granted(Channel, Environment.AuthenticationKey, access))
 			{
-				return await AccessRegistry.Registration(Channel, Environment.AuthenticationKey);
+				return await AccessRegistry.CachedRegistration(Channel, Environment.AuthenticationKey);
 			}
 
 			// I have experimented with this a bit, and the ORDER of params in the url appears to matter...
@@ -125,7 +125,7 @@ namespace PubNub.Async.Services.Access
 		private GrantResponse DeserializeResponse(string rawResponse)
 		{
 			var pubNubResponse = JsonConvert.DeserializeObject<PubNubGrantResponse>(rawResponse);
-
+			
 			var access = AccessType.None;
 
 			var auths = pubNubResponse.Paylaod.Auths;

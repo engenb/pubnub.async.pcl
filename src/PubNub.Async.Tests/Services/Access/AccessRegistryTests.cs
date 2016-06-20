@@ -15,23 +15,28 @@ namespace PubNub.Async.Tests.Services.Access
 		[Fact]
 		public async Task Register__Given_ChannelAuthKeyResponse__When_AccessExpiresInFuture__Then_UpdateRegistry()
 		{
+			var access = AccessType.ReadWrite;
 			var channelName = "channel";
 			var channel = new Channel(channelName);
 
 			var authKey = Fixture.Create<string>();
 
-			var response = Fixture.Create<GrantResponse>();
+			var response = Fixture
+				.Build<GrantResponse>()
+				.With(x => x.Access, access)
+				.With(x => x.MinutesToExpire, 60)
+				.Create();
 
 			var subject = new AccessRegistry();
 			await subject.Register(channel, authKey, response);
 
-			var result = subject.Granted(channel, authKey);
+			var result = subject.Granted(channel, authKey, access);
 
 			Assert.True(result);
 		}
 
 		[Fact]
-		public async Task Registration__Given_Registered__Then_ReturnPreviousResponse()
+		public async Task CachedRegistration__Given_Registered__Then_ReturnPreviousResponse()
 		{
 			var channelName = "channel";
 			var channel = new Channel(channelName);
@@ -43,7 +48,7 @@ namespace PubNub.Async.Tests.Services.Access
 			var subject = new AccessRegistry();
 			await subject.Register(channel, authKey, response);
 
-			var result = await subject.Registration(channel, authKey);
+			var result = await subject.CachedRegistration(channel, authKey);
 
 			Assert.Equal(JsonConvert.SerializeObject(response), JsonConvert.SerializeObject(result));
 		}
@@ -51,17 +56,22 @@ namespace PubNub.Async.Tests.Services.Access
 		[Fact]
 		public async Task Granted__Given_ChannelAuthKeyResponse__When_AccessExpiresInFuture__Then_ReturnTrue()
 		{
+			var access = AccessType.ReadWrite;
 			var channelName = "channel";
 			var channel = new Channel(channelName);
 
 			var authKey = Fixture.Create<string>();
 
-			var response = Fixture.Create<GrantResponse>();
+			var response = Fixture
+				.Build<GrantResponse>()
+				.With(x => x.Access, access)
+				.With(x => x.MinutesToExpire, 60)
+				.Create();
 
 			var subject = new AccessRegistry();
 			await subject.Register(channel, authKey, response);
 
-			var result = subject.Granted(channel, authKey);
+			var result = subject.Granted(channel, authKey, access);
 
 			Assert.True(result);
 		}
@@ -69,6 +79,7 @@ namespace PubNub.Async.Tests.Services.Access
 		[Fact]
 		public async Task Granted__Given_ChannelAuthKeyResponse__When_AccessExpired__Then_ReturnFalse()
 		{
+			var access = AccessType.ReadWrite;
 			var channelName = "channel";
 			var channel = new Channel(channelName);
 
@@ -76,13 +87,14 @@ namespace PubNub.Async.Tests.Services.Access
 			
 			var response = Fixture
 				.Build<GrantResponse>()
+				.With(x => x.Access, access)
 				.With(x => x.MinutesToExpire, -60)
 				.Create();
 
 			var subject = new AccessRegistry();
 			await subject.Register(channel, authKey, response);
 
-			var result = subject.Granted(channel, authKey);
+			var result = subject.Granted(channel, authKey, access);
 
 			Assert.False(result);
 		}
@@ -97,7 +109,7 @@ namespace PubNub.Async.Tests.Services.Access
 
 			var subject = new AccessRegistry();
 
-			var result = subject.Granted(channel, authKey);
+			var result = subject.Granted(channel, authKey, AccessType.ReadWrite);
 
 			Assert.False(result);
 		}
@@ -113,7 +125,7 @@ namespace PubNub.Async.Tests.Services.Access
 
 			subject.Unregister(channel, authKey);
 
-			var registration = await subject.Registration(channel, authKey);
+			var registration = await subject.CachedRegistration(channel, authKey);
 
 			Assert.Null(registration);
 			// no exceptions were thrown, is the real assert here
@@ -154,11 +166,11 @@ namespace PubNub.Async.Tests.Services.Access
 
 			await subject.Register(channel, authKey, grant);
 			
-			var registration = await subject.Registration(channel, authKey);
+			var registration = await subject.CachedRegistration(channel, authKey);
 			Assert.NotNull(registration);
 
 			subject.Unregister(channel, authKey);
-			registration = await subject.Registration(channel, authKey);
+			registration = await subject.CachedRegistration(channel, authKey);
 			Assert.Null(registration);
 		}
 	}
