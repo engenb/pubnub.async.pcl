@@ -6,12 +6,12 @@ using Flurl.Http.Testing;
 using Moq;
 using Newtonsoft.Json;
 using Ploeh.AutoFixture;
-using PubNub.Async.Configuration;
 using PubNub.Async.Extensions;
 using PubNub.Async.Models.Access;
 using PubNub.Async.Models.Channel;
 using PubNub.Async.Services.Access;
-using PubNub.Async.Tests.Properties;
+using PubNub.Async.Tests.Common;
+using PubNub.Async.Tests.Common.Properties;
 using Xunit;
 
 namespace PubNub.Async.Tests.Services.Access

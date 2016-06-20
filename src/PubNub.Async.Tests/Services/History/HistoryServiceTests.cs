@@ -8,7 +8,8 @@ using PubNub.Async.Extensions;
 using PubNub.Async.Services.Access;
 using PubNub.Async.Services.Crypto;
 using PubNub.Async.Services.History;
-using PubNub.Async.Tests.Properties;
+using PubNub.Async.Tests.Common;
+using PubNub.Async.Tests.Common.Properties;
 using Xunit;
 
 namespace PubNub.Async.Tests.Services.History

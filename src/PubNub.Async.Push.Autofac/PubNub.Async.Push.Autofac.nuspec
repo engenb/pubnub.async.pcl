@@ -15,6 +15,6 @@
 		<releaseNotes>
 		</releaseNotes>
 		<copyright>Copyright 2016</copyright>
-		<tags>pubnub async pcl xamarin push notifications</tags>
+		<tags>pubnub async pcl xamarin push notification autofac</tags>
 	</metadata>
 </package>

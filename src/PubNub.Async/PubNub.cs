@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using PubNub.Async.Configuration;
 
 namespace PubNub.Async
@@ -10,7 +11,7 @@ namespace PubNub.Async
 		private static Lazy<IPubNubEnvironment> _environment;
 		internal static Lazy<IPubNubEnvironment> InternalEnvironment
 		{
-			get { return _environment ?? (_environment = new Lazy<IPubNubEnvironment>(() => new DefaultPubNubEnvironment())); }
+			get { return _environment ?? (_environment = new Lazy<IPubNubEnvironment>(() => new DefaultPubNubEnvironment(), LazyThreadSafetyMode.ExecutionAndPublication)); }
 			set { _environment = value; }
 		}
 
@@ -18,10 +19,7 @@ namespace PubNub.Async
 
 		public static void Configure(Action<IPubNubEnvironment> configureSettings)
 		{
-			lock (SettingsLock)
-			{
-				configureSettings(Environment);
-			}
+			configureSettings(Environment);
 		}
 	}
 }

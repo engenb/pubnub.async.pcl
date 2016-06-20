@@ -87,7 +87,7 @@ namespace PubNub.Async.Push.Tests
         }
 
         [Fact]
-        public async Task Revoke_Given_BodyReturnedInResponse__Then_ReturnsEmptyResponse()
+        public async Task Revoke__Given_BodyReturnedInResponse__Then_ReturnsEmptyResponse()
         {
             var subject = CreateSubject();
             using (var httpTest = new HttpTest())
@@ -111,7 +111,7 @@ namespace PubNub.Async.Push.Tests
                 .Encrypted();
 
             var subject = CreateSubject(client);
-            await Assert.ThrowsAsync<InvalidOperationException>(() => subject.PublishPush("whatever"));
+            await Assert.ThrowsAsync<InvalidOperationException>(() => subject.PublishPushNotification("whatever"));
         }
 
         [Fact]
@@ -127,7 +127,7 @@ namespace PubNub.Async.Push.Tests
                 .Returns(Task.FromResult(new PublishResponse()));
 
             var subject = CreateSubject(publish: mockPublish.Object);
-            var response = await subject.PublishPush(message);
+            var response = await subject.PublishPushNotification(message);
 
             mockPublish.Verify(mock => mock.Publish(It.IsAny<PushPayload>(), false), Times.Once());
             Assert.Equal(message, payload.Apns.Aps.Alert);

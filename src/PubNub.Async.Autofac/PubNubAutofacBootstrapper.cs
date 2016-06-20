@@ -6,32 +6,36 @@ namespace PubNub.Async.Autofac
 {
 	public class PubNubAutofacBootstrapper : IStartable
 	{
-		private Lazy<IPubNubEnvironment> LazyEnvironment { get; }
+		private Lazy<IPubNubEnvironment> AutofacLazyEnvironment { get; }
 
-		public PubNubAutofacBootstrapper(Lazy<IPubNubEnvironment> lazyEnvironment)
+		public PubNubAutofacBootstrapper(Lazy<IPubNubEnvironment> environment)
 		{
-			LazyEnvironment = lazyEnvironment;
+			AutofacLazyEnvironment = environment;
 		}
 
 		public void Start()
 		{
-			var lazySettings = PubNub.InternalEnvironment;
-			PubNub.InternalEnvironment = LazyEnvironment;
-			if (lazySettings.IsValueCreated)
+			var oldLazyEnvironment = PubNub.InternalEnvironment;
+			PubNub.InternalEnvironment = AutofacLazyEnvironment;
+
+			// if the old environment was previously evaluated/configured...
+			if (oldLazyEnvironment.IsValueCreated)
 			{
-				var oldSettings = lazySettings.Value;
-				var newSettings = PubNub.Environment;
-				//copy the Environment over
-				newSettings.AuthenticationKey = oldSettings.AuthenticationKey;
-				newSettings.CipherKey = oldSettings.CipherKey;
-				newSettings.MinutesToTimeout = oldSettings.MinutesToTimeout;
-				newSettings.Origin = oldSettings.Origin;
-				newSettings.PublishKey = oldSettings.PublishKey;
-				newSettings.SdkVersion = oldSettings.SdkVersion;
-				newSettings.SecretKey = oldSettings.SecretKey;
-				newSettings.SessionUuid = oldSettings.SessionUuid;
-				newSettings.SslEnabled = oldSettings.SslEnabled;
-				newSettings.SubscribeKey = oldSettings.SubscribeKey;
+				var oldEnvironment = oldLazyEnvironment.Value;
+				// ...then copy the old settings to the new environment
+				PubNub.Configure(c =>
+				{
+					c.AuthenticationKey = oldEnvironment.AuthenticationKey;
+					c.CipherKey = oldEnvironment.CipherKey;
+					c.MinutesToTimeout = oldEnvironment.MinutesToTimeout;
+					c.Origin = oldEnvironment.Origin;
+					c.PublishKey = oldEnvironment.PublishKey;
+					c.SdkVersion = oldEnvironment.SdkVersion;
+					c.SecretKey = oldEnvironment.SecretKey;
+					c.SessionUuid = oldEnvironment.SessionUuid;
+					c.SslEnabled = oldEnvironment.SslEnabled;
+					c.SubscribeKey = oldEnvironment.SubscribeKey;
+				});
 			}
 		}
 	}

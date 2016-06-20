@@ -8,7 +8,7 @@ using PubNub.Async.Models.Publish;
 using PubNub.Async.Services.Access;
 using PubNub.Async.Services.Crypto;
 using PubNub.Async.Services.Publish;
-using PubNub.Async.Tests.Properties;
+using PubNub.Async.Tests.Common.Properties;
 using Xunit;
 
 namespace PubNub.Async.Tests.Services.Publish

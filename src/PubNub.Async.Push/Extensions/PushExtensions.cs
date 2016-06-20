@@ -64,54 +64,60 @@ namespace PubNub.Async.Push.Extensions
                 .Revoke(type, token);
         }
 
-        public static async Task<PublishResponse> PublishPush(
+        public static async Task<PublishResponse> PublishPushNotification(
             this string channel,
-            string message)
+            string message,
+			bool isDebug = false)
         {
             return await new PubNubClient(channel)
-                .PublishPush(message);
+                .PublishPushNotification(message, isDebug);
         }
 
-        public static async Task<PublishResponse> PublishPush(
+        public static async Task<PublishResponse> PublishPushNotification(
             this Channel channel,
-            string message)
+            string message,
+			bool isDebug = false)
         {
             return await new PubNubClient(channel)
-                .PublishPush(message);
+                .PublishPushNotification(message, isDebug);
         }
 
-        public static async Task<PublishResponse> PublishPush(
+        public static async Task<PublishResponse> PublishPushNotification(
             this IPubNubClient client,
-            string message)
+            string message,
+			bool isDebug = false)
         {
             return await PubNub.Environment
                 .Resolve<IPushService>(client)
-                .PublishPush(message);
+                .PublishPushNotification(message, isDebug);
         }
 
-        public static async Task<PublishResponse> PublishPush(
+        public static async Task<PublishResponse> PublishPushNotification(
             this string channel,
-            PushPayload payload)
+            object payload,
+			bool isDebug = false)
         {
             return await new PubNubClient(channel)
-                .PublishPush(payload);
+                .PublishPushNotification(payload, isDebug);
         }
 
-        public static async Task<PublishResponse> PublishPush(
+        public static async Task<PublishResponse> PublishPushNotification(
             this Channel channel,
-            PushPayload payload)
+            object payload,
+			bool isDebug = false)
         {
             return await new PubNubClient(channel)
-                .PublishPush(payload);
-        }
+                .PublishPushNotification(payload, isDebug);
+		}
 
-        public static async Task<PublishResponse> PublishPush(
-            this IPubNubClient client,
-            PushPayload payload)
-        {
-            return await PubNub.Environment
-                .Resolve<IPushService>(client)
-                .PublishPush(payload);
-        }
-    }
+		public static async Task<PublishResponse> PublishPushNotification(
+			this IPubNubClient client,
+			object message,
+			bool isDebug = false)
+		{
+			return await PubNub.Environment
+				.Resolve<IPushService>(client)
+				.PublishPushNotification(message, isDebug);
+		}
+	}
 }

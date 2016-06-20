@@ -10,6 +10,7 @@ using PubNub.Async.Services.Publish;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace PubNub.Async.Push.Services
 {
@@ -54,7 +55,6 @@ namespace PubNub.Async.Push.Services
             }
 
             var requestUrl = BuildDeviceUrl(type, token, "remove");
-            var response = new PushResponse();
             var result = await requestUrl
                 .ConfigureClient(s => s.AllowedHttpStatusRange = "403")
                 .GetAsync()
@@ -63,9 +63,14 @@ namespace PubNub.Async.Push.Services
             return ParseDeviceResult(result);
         }
 
-        public Task<PublishResponse> PublishPush(string message, bool isDebug = false)
-        {
-            var payload = new PushPayload
+        public Task<PublishResponse> PublishPushNotification(string message, bool isDebug = false)
+		{
+			if (Channel.Encrypted)
+			{
+				throw new InvalidOperationException("Push notifications should not be sent using an encrypted channel");
+			}
+
+			var payload = new PushPayload
             {
                 Apns = new ApnsPayload
                 {
@@ -84,22 +89,17 @@ namespace PubNub.Async.Push.Services
                 IsDebug = isDebug
             };
 
-            return PublishPush(payload);
-        }
+			return Publish.Publish(payload, false);
+		}
 
-        public Task<PublishResponse> PublishPush(PushPayload payload)
+	    public Task<PublishResponse> PublishPushNotification(object message, bool isDebug = false)
+	    {
+		    return PublishPushNotification(JsonConvert.SerializeObject(message), isDebug);
+	    }
+
+	    private Url BuildDeviceUrl(DeviceType type, string token, string action)
         {
-            if (Channel.Encrypted)
-            {
-                throw new InvalidOperationException("Push notifications should not be sent using an encrypted channel");
-            }
-
-            return Publish.Publish(payload, false);
-        }
-
-        private Url BuildDeviceUrl(DeviceType type, string token, string action)
-        {
-            var pushService = String.Empty;
+            var pushService = string.Empty;
             switch (type)
             {
                 case DeviceType.Android:
