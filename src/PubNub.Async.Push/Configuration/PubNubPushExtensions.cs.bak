@@ -5,7 +5,7 @@ using System;
 
 namespace PubNub.Async.Push.Configuration
 {
-    public static class PubNubPushExtensions
+    public static class EnvironmentExtensions
     {
         public static void UsePush(this IPubNubEnvironment environment)
         {

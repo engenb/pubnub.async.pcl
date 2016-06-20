@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="PubNub.Async.Push.Autofac.nuspec" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PubNub.Async.Push\PubNub.Async.Push.csproj">
