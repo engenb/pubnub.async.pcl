@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
 using Newtonsoft.Json;
@@ -44,14 +46,18 @@ namespace PubNub.Async.Services.Publish
 				var grantResponse = await Access.Establish(AccessType.Write);
 				if (!grantResponse.Success)
 				{
-					//TODO: do something
+				    return new PublishResponse
+				    {
+                        Success = false,
+                        Message = grantResponse.Message
+				    };
 				}
 			}
 
 			if (Channel.Encrypted)
 			{
 				msg = Crypto.Encrypt(Channel.Cipher ?? Environment.CipherKey, msg);
-				msg = JsonConvert.SerializeObject(msg);
+			    msg = JsonConvert.SerializeObject(msg);
 			}
 
 			var signature = "0";
@@ -92,19 +98,29 @@ namespace PubNub.Async.Services.Publish
 
 		private PublishResponse DeserializeResponse(string rawResponse)
 		{
-			var array = JArray.Parse(rawResponse);
-			if (!array.HasValues || array.Count != 3)
-			{
-				//TODO: error
-				return null;
-			}
+		    if (!string.IsNullOrWhiteSpace(rawResponse))
+		    {
+		        var parsedResponse = JToken.Parse(rawResponse);
+		        if (parsedResponse.Type == JTokenType.Array)
+		        {
+		            var array = parsedResponse.ToArray();
+		            if (array.Length == 3)
+                    {
+                        return new PublishResponse
+                        {
+                            Success = array[0].Value<bool>(),
+                            Message = array[1].Value<string>(),
+                            Sent = array[2].Value<long>()
+                        };
+		            }
+		        }
+		    }
 
-			return new PublishResponse
-			{
-				Success = array[0].Value<bool>(),
-				Message = array[1].Value<string>(),
-				Sent = array[2].Value<long>()
-			};
-		}
+            return new PublishResponse
+            {
+                Success = false,
+                Message = rawResponse
+            };
+        }
 	}
 }

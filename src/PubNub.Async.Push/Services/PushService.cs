@@ -70,22 +70,8 @@ namespace PubNub.Async.Push.Services
 				throw new InvalidOperationException("Push notifications should not be sent using an encrypted channel");
 			}
 
-			var payload = new PushPayload
+			var payload = new PushPayload(message)
             {
-                Apns = new ApnsPayload
-                {
-                    Aps = new ApsPayload
-                    {
-                        Alert = message
-                    }
-                },
-                Gcm = new GcmPayload
-                {
-                    Data = new GcmDataPayload
-                    {
-                        Message = message
-                    }
-                },
                 IsDebug = isDebug
             };
 
@@ -141,7 +127,7 @@ namespace PubNub.Async.Push.Services
                         && arrayValues[1].ToString() == DEVICE_SUCCESS_MESSAGE)
                     {
                         response.Success = true;
-                        response.Message = null;
+                        response.Message = arrayValues[1].ToString();
                     }
                 }
                 else if (parsedResult.Type == JTokenType.Object)
