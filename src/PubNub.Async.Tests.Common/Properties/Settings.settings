@@ -47,11 +47,8 @@
     <Setting Name="PamSecKey" Type="System.String" Scope="Application">
       <Value Profile="(Default)">sec-c-Y2JkZDM1MWMtNjQyMy00NjJiLTk5NGQtZWIyMTQ5ZTlmYTk0</Value>
     </Setting>
-    <Setting Name="PresenceEncryptedChannel" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">presence-tests-encrypted</Value>
-    </Setting>
-    <Setting Name="PresenceDecryptedChannel" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">presence-tests-unencrypted</Value>
+    <Setting Name="PresenceTestChannel" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">pressence-test</Value>
     </Setting>
   </Settings>
 </SettingsFile>

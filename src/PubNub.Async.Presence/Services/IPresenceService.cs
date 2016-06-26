@@ -1,12 +1,13 @@
 ﻿using System.Threading.Tasks;
+using PubNub.Async.Presence.Models;
 
 namespace PubNub.Async.Presence.Services
 {
     public interface IPresenceService
     {
-	    Task<TState> GetState<TState>()
+	    Task<PresenceResponse<TState>> GetState<TState>()
 			where TState : class;
-	    Task SetState<TState>(TState state)
+	    Task<PresenceResponse<TState>> SetState<TState>(TState state)
 			where TState : class;
     }
 }

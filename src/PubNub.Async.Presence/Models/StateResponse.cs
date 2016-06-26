@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace PubNub.Async.Presence.Models
 {
-	public class StateResponse
+	public class StateResponse<TState>
 	{
 		[JsonProperty("status")]
 		public HttpStatusCode Status { get; set; }
@@ -19,6 +19,6 @@ namespace PubNub.Async.Presence.Models
 		public string Channel { get; set; }
 
 		[JsonProperty("payload")]
-		public JToken Payload { get; set; }
+		public TState Payload { get; set; }
 	}
 }

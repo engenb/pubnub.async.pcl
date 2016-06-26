@@ -160,19 +160,10 @@ namespace PubNub.Async.Tests.Common.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("presence-tests-encrypted")]
-        public string PresenceEncryptedChannel {
+        [global::System.Configuration.DefaultSettingValueAttribute("pressence-test")]
+        public string PresenceTestChannel {
             get {
-                return ((string)(this["PresenceEncryptedChannel"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("presence-tests-unencrypted")]
-        public string PresenceDecryptedChannel {
-            get {
-                return ((string)(this["PresenceDecryptedChannel"]));
+                return ((string)(this["PresenceTestChannel"]));
             }
         }
     }

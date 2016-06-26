@@ -44,7 +44,9 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Configuration\EnvironmentExtensions.cs" />
     <Compile Include="Extensions\PresenceExtensions.cs" />
+    <Compile Include="Models\PresenceResponse.cs" />
     <Compile Include="Models\StateResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\IPresenceService.cs" />
