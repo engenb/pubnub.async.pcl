@@ -1,5 +1,4 @@
-﻿using System.Runtime.Serialization;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using PubNub.Async.Models.Channel;
 using PubNub.Async.Presence.Models;
 using PubNub.Async.Presence.Services;

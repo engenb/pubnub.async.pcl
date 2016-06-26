@@ -15,7 +15,8 @@ namespace PubNub.Async.Extensions
 		{
 			if (response?.Content?.Headers?.ContentType?.CharSet != null)
 			{
-				response.Content.Headers.ContentType.CharSet = response.Content.Headers.ContentType.CharSet.Replace("\"", string.Empty);
+				response.Content.Headers.ContentType.CharSet = response.Content.Headers.ContentType.CharSet.Replace("\"",
+					string.Empty);
 			}
 			return response;
 		}

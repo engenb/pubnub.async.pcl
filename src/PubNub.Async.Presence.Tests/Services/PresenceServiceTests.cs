@@ -3,7 +3,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http.Testing;
-using Moq;
 using Newtonsoft.Json;
 using Ploeh.AutoFixture;
 using PubNub.Async.Extensions;
@@ -11,11 +10,9 @@ using PubNub.Async.Presence.Configuration;
 using PubNub.Async.Presence.Extensions;
 using PubNub.Async.Presence.Models;
 using PubNub.Async.Presence.Services;
-using PubNub.Async.Services.Crypto;
 using PubNub.Async.Tests.Common;
 using PubNub.Async.Tests.Common.Properties;
 using Xunit;
-using Xunit.Sdk;
 
 namespace PubNub.Async.Presence.Tests.Services
 {
@@ -23,7 +20,7 @@ namespace PubNub.Async.Presence.Tests.Services
 	{
 		public PresenceServiceTests()
 		{
-			PubNub.Environment.UsePresence();	
+			PubNub.Environment.UsePresence();
 		}
 
 		[Fact]
