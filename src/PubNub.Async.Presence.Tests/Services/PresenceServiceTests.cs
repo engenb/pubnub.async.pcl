@@ -166,7 +166,7 @@ namespace PubNub.Async.Presence.Tests.Services
 			{
 				httpTest.RespondWithJson(subscribersResponse);
 
-				var result = await subject.Subscribers(false, false);
+				var result = await subject.Subscribers<JObject>(false, false);
 
 				httpTest.ShouldHaveCalled(expectedUrl)
 					.WithVerb(HttpMethod.Get)
@@ -215,7 +215,7 @@ namespace PubNub.Async.Presence.Tests.Services
 			{
 				httpTest.RespondWithJson(subscribersResponse);
 
-				var result = await subject.Subscribers();
+				var result = await subject.Subscribers<JObject>();
 
 				httpTest.ShouldHaveCalled(expectedUrl)
 					.WithVerb(HttpMethod.Get)
@@ -259,7 +259,7 @@ namespace PubNub.Async.Presence.Tests.Services
 			{
 				httpTest.RespondWithJson(subscribersResponse);
 
-				var result = await subject.Subscribers(true);
+				var result = await subject.Subscribers<JObject>(true);
 
 				httpTest.ShouldHaveCalled(expectedUrl)
 					.WithVerb(HttpMethod.Get)
@@ -316,7 +316,7 @@ namespace PubNub.Async.Presence.Tests.Services
 
 			var subject = new PresenceService(client);
 
-			var result = await subject.Subscribers(false, false);
+			var result = await subject.Subscribers<JObject>(false, false);
 
 			Assert.NotNull(result);
 			Assert.True(result.Success);
@@ -336,7 +336,7 @@ namespace PubNub.Async.Presence.Tests.Services
 
 			var subject = new PresenceService(client);
 
-			var result = await subject.Subscribers();
+			var result = await subject.Subscribers<JObject>();
 
 			Assert.NotNull(result);
 			Assert.True(result.Success);
@@ -356,7 +356,7 @@ namespace PubNub.Async.Presence.Tests.Services
 
 			var subject = new PresenceService(client);
 
-			var result = await subject.Subscribers(true);
+			var result = await subject.Subscribers<JObject>(true);
 
 			Assert.NotNull(result);
 			Assert.True(result.Success);
