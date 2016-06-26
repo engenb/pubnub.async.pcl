@@ -1,5 +1,4 @@
-﻿using System;
-namespace PubNub.Async.Presence.Models
+﻿namespace PubNub.Async.Presence.Models
 {
 	public class SubscribersResponse<TState> where TState : class
 	{

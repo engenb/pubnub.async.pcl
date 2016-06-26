@@ -59,11 +59,6 @@ namespace PubNub.Async.Presence.Services
 			return ConstructResponse(response);
 		}
 
-		public Task<SubscribersResponse<JObject>> Subscribers(bool includeSessionState = false, bool includeUuids = true)
-		{
-			return Subscribers<JObject>(includeSessionState, includeUuids);
-		}
-
 		public async Task<SubscribersResponse<TState>> Subscribers<TState>(bool includeSessionState = false, bool includeUuids = true)
 			where TState : class
 		{
