@@ -7,7 +7,7 @@ namespace PubNub.Async.Presence.Extensions
 {
 	public static class PresenceExtensions
 	{
-		public static async Task<PresenceResponse<TState>> GetState<TState>(this string channel)
+		public static async Task<SessionStateResponse<TState>> GetState<TState>(this string channel)
 			where TState : class
 		{
 			return await new PubNubClient(channel)
@@ -15,7 +15,7 @@ namespace PubNub.Async.Presence.Extensions
 				.ConfigureAwait(false);
 		}
 
-		public static async Task<PresenceResponse<TState>> GetState<TState>(this Channel channel)
+		public static async Task<SessionStateResponse<TState>> GetState<TState>(this Channel channel)
 			where TState : class
 		{
 			return await new PubNubClient(channel)
@@ -23,16 +23,16 @@ namespace PubNub.Async.Presence.Extensions
 				.ConfigureAwait(false);
 		}
 
-		public static async Task<PresenceResponse<TState>> GetState<TState>(this IPubNubClient client)
+		public static async Task<SessionStateResponse<TState>> GetState<TState>(this IPubNubClient client)
 			where TState : class
 		{
 			return await PubNub.Environment
 				.Resolve<IPresenceService>(client)
-				.GetState<TState>()
+				.SessionState<TState>()
 				.ConfigureAwait(false);
 		}
 
-		public static async Task<PresenceResponse<TState>> SetState<TState>(this string channel, TState state)
+		public static async Task<SessionStateResponse<TState>> SetState<TState>(this string channel, TState state)
 			where TState : class
 		{
 			return await new PubNubClient(channel)
@@ -40,7 +40,7 @@ namespace PubNub.Async.Presence.Extensions
 				.ConfigureAwait(false);
 		}
 
-		public static async Task<PresenceResponse<TState>> SetState<TState>(this Channel channel, TState state)
+		public static async Task<SessionStateResponse<TState>> SetState<TState>(this Channel channel, TState state)
 			where TState : class
 		{
 			return await new PubNubClient(channel)
@@ -48,12 +48,12 @@ namespace PubNub.Async.Presence.Extensions
 				.ConfigureAwait(false);
 		}
 
-		public static async Task<PresenceResponse<TState>> SetState<TState>(this IPubNubClient client, TState state)
+		public static async Task<SessionStateResponse<TState>> SetState<TState>(this IPubNubClient client, TState state)
 			where TState : class
 		{
 			return await PubNub.Environment
 				.Resolve<IPresenceService>(client)
-				.SetState(state)
+				.SessionState(state)
 				.ConfigureAwait(false);
 		}
 	}
