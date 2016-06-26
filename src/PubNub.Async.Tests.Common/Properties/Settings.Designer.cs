@@ -157,5 +157,23 @@ namespace PubNub.Async.Tests.Common.Properties {
                 return ((string)(this["PamSecKey"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("presence-tests-encrypted")]
+        public string PresenceEncryptedChannel {
+            get {
+                return ((string)(this["PresenceEncryptedChannel"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("presence-tests-unencrypted")]
+        public string PresenceDecryptedChannel {
+            get {
+                return ((string)(this["PresenceDecryptedChannel"]));
+            }
+        }
     }
 }
