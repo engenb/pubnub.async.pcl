@@ -1,31 +1,33 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using PubNub.Async.Services.Access;
 using PubNub.Async.Services.Crypto;
 using PubNub.Async.Services.History;
 using PubNub.Async.Services.Publish;
+using PubNub.Async.Services.Subscribe;
 
 namespace PubNub.Async.Configuration
 {
 	public class DefaultPubNubEnvironment : AbstractPubNubEnvironment, IRegisterService
 	{
-		private static readonly object RegistrySyncRoot = new object();
-		private static IAccessRegistry _registry;
-		public static IAccessRegistry RegistryInstance
+		private static readonly object AccessRegistrySyncRoot = new object();
+		private static IAccessRegistry _accessRegistry;
+		public static IAccessRegistry AccessRegistryInstance
 		{
 			get
 			{
-				if (_registry == null)
+				if (_accessRegistry == null)
 				{
-					lock (RegistrySyncRoot)
+					lock (AccessRegistrySyncRoot)
 					{
-						if (_registry == null)
+						if (_accessRegistry == null)
 						{
-							_registry = new AccessRegistry();
+                            _accessRegistry = new AccessRegistry();
 						}
 					}
 				}
-				return _registry;
+				return _accessRegistry;
 			}
 		}
 
@@ -49,6 +51,27 @@ namespace PubNub.Async.Configuration
 			}
 		}
 
+	    private static readonly object SubscriptionRegistrySyncRoot = new object();
+	    private static ISubscriptionRegistry _subscriptionRegistry;
+
+	    public static ISubscriptionRegistry SubscriptionRegistryInstance
+        {
+	        get
+	        {
+	            if (_subscriptionRegistry == null)
+	            {
+	                lock (SubscriptionRegistrySyncRoot)
+	                {
+	                    if (_subscriptionRegistry == null)
+	                    {
+	                        _subscriptionRegistry = new SubscriptionRegistry();
+	                    }
+	                }
+	            }
+	            return _subscriptionRegistry;
+	        }
+	    }
+        
 		private ConcurrentDictionary<Type, Func<IPubNubClient, object>> Services { get; }
 
 		/// <summary>
@@ -61,12 +84,16 @@ namespace PubNub.Async.Configuration
 			Services = new ConcurrentDictionary<Type, Func<IPubNubClient, object>>();
 
 			Register<ICryptoService>(client => CryptoInstance);
-			Register<IAccessManager>(client => new AccessManager(client, RegistryInstance));
+            Register<IAccessRegistry>(client => AccessRegistryInstance);
+            Register<ISubscriptionRegistry>(client => SubscriptionRegistryInstance);
+
+            Register<IAccessManager>(client => new AccessManager(client, Resolve<IAccessRegistry>(client)));
 			Register<IHistoryService>(client => new HistoryService(client, Resolve<ICryptoService>(client), Resolve<IAccessManager>(client)));
 			Register<IPublishService>(client => new PublishService(client, Resolve<ICryptoService>(client), Resolve<IAccessManager>(client)));
-		}
+            Register<ISubscribeService>(client => new SubscribeService(client, (host, subKey) => GetMonitor(client, host, subKey), Resolve<ISubscriptionRegistry>(client)));
+        }
 
-		public void Register<TService>(Func<IPubNubClient, TService> resolver)
+        public void Register<TService>(Func<IPubNubClient, TService> resolver)
 		{
 			Services[typeof (TService)] = client => resolver(client);
 		} 
@@ -74,6 +101,17 @@ namespace PubNub.Async.Configuration
 		public override TService Resolve<TService>(IPubNubClient client)
 		{
 			return (TService) Services[typeof (TService)](client);
-		}
-	}
+        }
+
+        private readonly IDictionary<Tuple<string, string>, ISubscriptionMonitor> _monitors = new ConcurrentDictionary<Tuple<string, string>, ISubscriptionMonitor>();
+        private ISubscriptionMonitor GetMonitor(IPubNubClient client, string host, string subscribeKey)
+        {
+            var key = Tuple.Create(host, subscribeKey);
+            if (!_monitors.ContainsKey(key))
+            {
+                _monitors[key] = new SubscriptionMonitor(host, subscribeKey, Resolve<ISubscriptionRegistry>(client));
+            }
+            return _monitors[key];
+        }
+    }
 }
