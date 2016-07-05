@@ -48,6 +48,7 @@
     <Compile Include="Extensions\HttpResponseMethodPostProcessExtensions.cs" />
     <Compile Include="Configuration\IPubNubEnvironment.cs" />
     <Compile Include="Extensions\PublishExtensions.cs" />
+    <Compile Include="Extensions\SubscribeExtensions.cs" />
     <Compile Include="IPubNubClient.cs" />
     <Compile Include="Models\Access\AccessType.cs" />
     <Compile Include="Models\Access\GrantResponse.cs" />
@@ -61,6 +62,11 @@
     <Compile Include="Models\History\HistoryMessage.cs" />
     <Compile Include="Models\History\HistoryResponse.cs" />
     <Compile Include="Models\Publish\PublishResponse.cs" />
+    <Compile Include="Models\Subscribe\PubNubSubscribeResponse.cs" />
+    <Compile Include="Models\Subscribe\PubNubSubscribeResponseMessage.cs" />
+    <Compile Include="Models\Subscribe\PubNubSubscribeResponseTime.cs" />
+    <Compile Include="Models\Subscribe\SubscribeResponse.cs" />
+    <Compile Include="Models\Subscribe\Subscription.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PubNub.cs" />
     <Compile Include="PubNubClient.cs" />
@@ -76,6 +82,14 @@
     <Compile Include="Services\History\HistoryOrder.cs" />
     <Compile Include="Services\Publish\IPublishService.cs" />
     <Compile Include="Services\Publish\PublishService.cs" />
+    <Compile Include="Services\Subscribe\ISubscriptionMonitor.cs" />
+    <Compile Include="Services\Subscribe\ISubscriptionRegistry.cs" />
+    <Compile Include="Services\Subscribe\ISubscribeService.cs" />
+    <Compile Include="Services\Subscribe\MessageReceivedEventArgs.cs" />
+    <Compile Include="Services\Subscribe\MessageReceivedHandler.cs" />
+    <Compile Include="Services\Subscribe\SubscriptionMonitor.cs" />
+    <Compile Include="Services\Subscribe\SubscriptionRegistry.cs" />
+    <Compile Include="Services\Subscribe\SubscribeService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Flurl, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">

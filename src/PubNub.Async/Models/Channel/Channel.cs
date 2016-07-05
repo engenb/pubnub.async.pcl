@@ -3,8 +3,15 @@
 namespace PubNub.Async.Models.Channel
 {
 	public class Channel
-	{
-		public Channel(string name)
+    {
+        public string Name { get; }
+
+        public bool Encrypted { get; set; }
+        public string Cipher { get; set; }
+
+        public bool Secured { get; set; }
+
+        public Channel(string name)
 		{
 			if (string.IsNullOrWhiteSpace(name))
 			{
@@ -13,11 +20,19 @@ namespace PubNub.Async.Models.Channel
 			Name = name;
 		}
 
-		public string Name { get; }
+	    public Channel Clone()
+	    {
+	        return (Channel)MemberwiseClone();
+	    }
 
-		public bool Encrypted { get; set; }
-		public string Cipher { get; set; }
+	    public override bool Equals(object obj)
+	    {
+	        return Name.Equals((obj as Channel)?.Name);
+	    }
 
-		public bool Secured { get; set; }
-	}
+	    public override int GetHashCode()
+	    {
+	        return Name.GetHashCode();
+	    }
+    }
 }

@@ -5,6 +5,7 @@ using PubNub.Async.Services.Access;
 using PubNub.Async.Services.Crypto;
 using PubNub.Async.Services.History;
 using PubNub.Async.Services.Publish;
+using PubNub.Async.Services.Subscribe;
 
 namespace PubNub.Async.Autofac
 {
@@ -35,9 +36,23 @@ namespace PubNub.Async.Autofac
 			builder
 				.RegisterType<AccessManager>()
 				.As<IAccessManager>();
+            
+            builder
+                .RegisterType<SubscribeService>()
+                .As<ISubscribeService>();
 
-			// ensure that all dependent services have the same client instance
-			builder
+		    builder
+		        .RegisterType<SubscriptionMonitor>()
+		        .As<ISubscriptionMonitor>()
+                .SingleInstance();
+
+		    builder
+		        .RegisterType<SubscriptionRegistry>()
+		        .As<ISubscriptionRegistry>()
+		        .SingleInstance();
+
+            // ensure that all dependent services have the same client instance
+            builder
 				.Register<IHistoryService>((c, p) =>
 				{
 					var context = c.Resolve<IComponentContext>();

@@ -136,6 +136,8 @@
     <Compile Include="Services\Crypto\CryptoServiceTests.cs" />
     <Compile Include="Services\History\HistoryServiceTests.cs" />
     <Compile Include="Services\Publish\PublishServiceTests.cs" />
+    <Compile Include="Services\Subscribe\SubscribeServiceTests.cs" />
+    <Compile Include="Services\Subscribe\SubscriptionRegistryTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
