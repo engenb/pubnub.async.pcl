@@ -72,9 +72,9 @@ namespace PubNub.Async.Tests.Services.Subscribe
             mockRegistry.Verify(x => x.Register(mockEnv.Object, channel, handler), Times.Once);
             mockMonitor.Verify(x => x.Start(), Times.Once);
 
-            Assert.True(stopCalledTicks < registerCalledTicks);
-            Assert.True(stopCalledTicks < startCalledTicks);
-            Assert.True(registerCalledTicks < startCalledTicks);
+            Assert.True(stopCalledTicks <= registerCalledTicks);
+            Assert.True(stopCalledTicks <= startCalledTicks);
+            Assert.True(registerCalledTicks <= startCalledTicks);
         }
     }
 }
