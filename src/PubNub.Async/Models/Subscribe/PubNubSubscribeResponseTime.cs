@@ -7,6 +7,6 @@ namespace PubNub.Async.Models.Subscribe
         [JsonProperty("t")]
         public long TimeToken { get; set; }
         [JsonProperty("r")]
-        public bool Read { get; set; }
+        public bool Replicate { get; set; }
     }
 }
