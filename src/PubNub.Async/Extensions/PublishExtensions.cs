@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using PubNub.Async.Models.Channel;
+using PubNub.Async.Models;
 using PubNub.Async.Models.Publish;
 using PubNub.Async.Services.Publish;
 

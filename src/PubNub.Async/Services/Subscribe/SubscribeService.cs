@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using Flurl;
-using Flurl.Http;
 using PubNub.Async.Configuration;
-using PubNub.Async.Extensions;
-using PubNub.Async.Models.Channel;
+using PubNub.Async.Models;
 using PubNub.Async.Models.Subscribe;
 
 namespace PubNub.Async.Services.Subscribe
@@ -38,6 +34,18 @@ namespace PubNub.Async.Services.Subscribe
             Subscriptions.Register(Environment, Channel, handler);
 
             return await Monitor.Start();
+        }
+
+        public async Task Unsubscribe<TMessage>(MessageReceivedHandler<TMessage> handler)
+        {
+            await Monitor.Stop();
+
+            Subscriptions.Unregister(Environment, Channel, handler);
+
+            if (Subscriptions.Get(Environment.SubscribeKey).Any())
+            {
+                await Monitor.Start();
+            }
         }
 
         public async Task Unsubscribe()

@@ -40,6 +40,7 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Configuration\AbstractPubNubEnvironment.cs" />
+    <Compile Include="Configuration\DefaultResolveSubscription.cs" />
     <Compile Include="Configuration\IRegisterService.cs" />
     <Compile Include="Extensions\AccessExtensions.cs" />
     <Compile Include="Extensions\ChannelExtensions.cs" />
@@ -56,7 +57,7 @@
     <Compile Include="Models\Access\PubNubGrantResponseAuths.cs" />
     <Compile Include="Models\Access\PubNubGrantResponsePayload.cs" />
     <Compile Include="Models\Access\AccessRegistration.cs" />
-    <Compile Include="Models\Channel\Channel.cs" />
+    <Compile Include="Models\Channel.cs" />
     <Compile Include="Models\History\HistoryMessage.cs" />
     <Compile Include="Models\History\HistoryResponse.cs" />
     <Compile Include="Models\Publish\PublishResponse.cs" />
@@ -80,6 +81,7 @@
     <Compile Include="Services\History\HistoryOrder.cs" />
     <Compile Include="Services\Publish\IPublishService.cs" />
     <Compile Include="Services\Publish\PublishService.cs" />
+    <Compile Include="Services\Subscribe\IResolveSubscription.cs" />
     <Compile Include="Services\Subscribe\ISubscriptionMonitor.cs" />
     <Compile Include="Services\Subscribe\ISubscribeService.cs" />
     <Compile Include="Services\Subscribe\ISubscriptionRegistry.cs" />
