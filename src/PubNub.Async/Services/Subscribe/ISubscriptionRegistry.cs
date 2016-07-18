@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System.Threading.Tasks;
 using PubNub.Async.Configuration;
 using PubNub.Async.Models.Channel;
 using PubNub.Async.Models.Subscribe;
@@ -7,11 +7,12 @@ namespace PubNub.Async.Services.Subscribe
 {
     public interface ISubscriptionRegistry
     {
-        void Register(IPubNubEnvironment environment, Channel channel, MessageReceivedHandler handler);
-        void Unregister(IPubNubEnvironment environment, Channel channel);
-        
-        IEnumerable<MessageReceivedHandler> MessageHandlers(IPubNubEnvironment environment, Channel channel);
+        string Channels(string subscribeKey);
+        Subscription[] Get(string subscribeKey);
 
-        IEnumerable<Subscription> EnvironmentSubscriptions(string subscribeKey);
+        void Register<TMessage>(IPubNubEnvironment environment, Channel channel, MessageReceivedHandler<TMessage> handler);
+        void Unregister(IPubNubEnvironment environment, Channel channel);
+
+        Task MessageReceived(PubNubSubscribeResponseMessage message);
     }
 }

@@ -5,7 +5,7 @@ namespace PubNub.Async.Services.Subscribe
 {
     public interface ISubscribeService
     {
-        Task<SubscribeResponse> Subscribe(MessageReceivedHandler handler);
+        Task<SubscribeResponse> Subscribe<TMessage>(MessageReceivedHandler<TMessage> handler);
         Task Unsubscribe();
     }
 }

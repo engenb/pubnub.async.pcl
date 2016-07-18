@@ -1,4 +1,6 @@
-﻿namespace PubNub.Async.Services.Subscribe
+﻿using System.Threading.Tasks;
+
+namespace PubNub.Async.Services.Subscribe
 {
-    public delegate void MessageReceivedHandler(MessageReceivedEventArgs args);
+    public delegate Task MessageReceivedHandler<TMessage>(MessageReceivedEventArgs<TMessage> args);
 }

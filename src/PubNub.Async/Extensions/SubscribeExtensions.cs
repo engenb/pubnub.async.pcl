@@ -7,24 +7,24 @@ namespace PubNub.Async.Extensions
 {
     public static class SubscribeExtensions
     {
-        public static Task<SubscribeResponse> Subscribe(
+        public static Task<SubscribeResponse> Subscribe<TMessage>(
             this string channel,
-            MessageReceivedHandler handler)
+            MessageReceivedHandler<TMessage> handler)
         {
             return new PubNubClient(channel)
                 .Subscribe(handler);
         }
-        public static Task<SubscribeResponse> Subscribe(
+        public static Task<SubscribeResponse> Subscribe<TMessage>(
             this Channel channel,
-            MessageReceivedHandler handler)
+            MessageReceivedHandler<TMessage> handler)
         {
             return new PubNubClient(channel)
                 .Subscribe(handler);
         }
 
-        public static async Task<SubscribeResponse> Subscribe(
+        public static async Task<SubscribeResponse> Subscribe<TMessage>(
                this IPubNubClient client,
-               MessageReceivedHandler handler)
+               MessageReceivedHandler<TMessage> handler)
         {
             return await PubNub.Environment
                 .Resolve<ISubscribeService>(client)

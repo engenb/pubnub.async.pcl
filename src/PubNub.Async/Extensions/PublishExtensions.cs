@@ -7,27 +7,27 @@ namespace PubNub.Async.Extensions
 {
 	public static class PublishExtensions
 	{
-		public static Task<PublishResponse> Publish<TContent>(
+		public static Task<PublishResponse> Publish<TMessage>(
 			this string channel,
-			TContent message,
+			TMessage message,
 			bool recordHistory = true)
 		{
 			return new PubNubClient(channel)
 				.Publish(message, recordHistory);
 		}
 
-		public static Task<PublishResponse> Publish<TContent>(
+		public static Task<PublishResponse> Publish<TMessage>(
 			this Channel channel,
-			TContent message,
+			TMessage message,
 			bool recordHistory = true)
 		{
 			return new PubNubClient(channel)
 				.Publish(message, recordHistory);
 		}
 
-		public static async Task<PublishResponse> Publish<TContent>(
+		public static async Task<PublishResponse> Publish<TMessage>(
 			this IPubNubClient client,
-			TContent message,
+			TMessage message,
 			bool recordHistory = true)
 		{
 			return await PubNub.Environment

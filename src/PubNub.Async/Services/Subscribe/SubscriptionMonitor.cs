@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
+using PubNub.Async.Configuration;
 using PubNub.Async.Extensions;
 using PubNub.Async.Models.Subscribe;
 
@@ -18,43 +19,44 @@ namespace PubNub.Async.Services.Subscribe
 
         private ISubscriptionRegistry Subscriptions { get; }
         
-        private long? LastTimeToken { get; set; }
+        public long? SubscribeTimeToken { get; set; }
 
         private Task Monitor { get; set; }
         private CancellationTokenSource CancellationSource { get; set; }
 
         public SubscriptionMonitor(
-            string host,
-            string subscribeKey,
+            IPubNubEnvironment environment,
             ISubscriptionRegistry subscriptions)
         {
-            Host = host;
-            SubscribeKey = subscribeKey;
+            Host = environment.Host;
+            SubscribeKey = environment.SubscribeKey;
 
             Subscriptions = subscriptions;
         }
 
         public async Task<SubscribeResponse> Start()
         {
-            var ret = new SubscribeResponse();
+            SubscribeResponse ret = null;
             await Mutex.WaitAsync().ConfigureAwait(false);
             try
             {
                 if (CancellationSource == null)
                 {
                     CancellationSource = new CancellationTokenSource();
-                    await Task.Run(ReceiveMessages, CancellationSource.Token);
-                    if (!CancellationSource.IsCancellationRequested)
+                }
+
+                if (!CancellationSource.IsCancellationRequested)
+                {
+                    var subResponse = await Subscribe();
+                    ret = new SubscribeResponse {Success = true};
+
+                    Monitor = Task.Run(async () =>
                     {
-                        Monitor = Task.Run(async () =>
+                        while (!CancellationSource.IsCancellationRequested)
                         {
-                            while (!CancellationSource.IsCancellationRequested)
-                            {
-                                await ReceiveMessages();
-                            }
-                        }, CancellationSource.Token);
-                        ret.Success = true;
-                    }
+                            await ReceiveMessages();
+                        }
+                    }, CancellationSource.Token);
                 }
             }
             finally
@@ -74,6 +76,7 @@ namespace PubNub.Async.Services.Subscribe
                 {
                     CancellationSource.Cancel();
                     await Monitor;
+                    SubscribeTimeToken = null;
                 }
             }
             finally
@@ -83,53 +86,70 @@ namespace PubNub.Async.Services.Subscribe
             }
         }
 
+        private async Task<PubNubSubscribeResponse> Subscribe()
+        {
+            try
+            {
+                var response = await BuildSubscribeUrl()
+                    .GetAsync(CancellationSource.Token)
+                    .ProcessResponse()
+                    .ReceiveJson<PubNubSubscribeResponse>();
+
+                SubscribeTimeToken = response.SubscribeTime.TimeToken;
+                return response;
+            }
+            catch (FlurlHttpException ex)
+            {
+                if (!(ex.InnerException is TaskCanceledException))
+                {
+                    throw;
+                }
+            }
+            return null;
+        }
+
         private async Task ReceiveMessages()
         {
-            var envSubscriptions = Subscriptions.EnvironmentSubscriptions(SubscribeKey);
-            var channels = string.Join(",", envSubscriptions.Select(x => x.Channel.Name));
+            var requestUrl = BuildSubscribeUrl();
 
-            var requestUrl = Host
-                .AppendPathSegments("v2", "subscribe")
-                .AppendPathSegment(SubscribeKey)
-                .AppendPathSegment(channels)
-                .AppendPathSegment("0");
-
-            if (LastTimeToken != null)
+            if (SubscribeTimeToken != null)
             {
-                requestUrl.AppendPathSegment(LastTimeToken);
+                requestUrl.AppendPathSegment(SubscribeTimeToken);
             }
 
-            var response = await requestUrl
-                .GetAsync(CancellationSource.Token)
-                .ProcessResponse()
-                .ReceiveJson<PubNubSubscribeResponse>();
-            
-            LastTimeToken = response.SubscribeTime.TimeToken;
-
-            if (response.Messages.Any())
+            try
             {
-                foreach (var message in response.Messages)
+                var response = await requestUrl
+                    .GetAsync(CancellationSource.Token)
+                    .ProcessResponse()
+                    .ReceiveJson<PubNubSubscribeResponse>();
+
+                SubscribeTimeToken = response.SubscribeTime.TimeToken;
+
+                if (response.Messages.Any())
                 {
-                    var eventArgs = new MessageReceivedEventArgs
+                    foreach (var message in response.Messages)
                     {
-                        SubscribeKey = message.SubscribeKey,
-                        SenderSessionUuid = message.SessionUuid,
-                        Channel = message.Channel,
-                        Sent = message.Processed.TimeToken,
-                        MessageJson = message.Data
-                    };
-
-                    var handlers = envSubscriptions
-                        .Where(x => x.Environment.SubscribeKey == message.SubscribeKey
-                                    && x.Channel.Name == message.Channel)
-                        .SelectMany(x => x.Handlers);
-
-                    foreach (var handler in handlers)
-                    {
-                        handler(eventArgs);
+                        Subscriptions.MessageReceived(message);
                     }
                 }
             }
+            catch (FlurlHttpException ex)
+            {
+                if (!(ex.InnerException is TaskCanceledException))
+                {
+                    throw;
+                }
+            }
+        }
+
+        private Url BuildSubscribeUrl()
+        {
+            return Host
+                .AppendPathSegments("v2", "subscribe")
+                .AppendPathSegment(SubscribeKey)
+                .AppendPathSegment(Subscriptions.Channels(SubscribeKey))
+                .AppendPathSegment("0");
         }
     }
 }

@@ -90,7 +90,7 @@ namespace PubNub.Async.Configuration
             Register<IAccessManager>(client => new AccessManager(client, Resolve<IAccessRegistry>(client)));
 			Register<IHistoryService>(client => new HistoryService(client, Resolve<ICryptoService>(client), Resolve<IAccessManager>(client)));
 			Register<IPublishService>(client => new PublishService(client, Resolve<ICryptoService>(client), Resolve<IAccessManager>(client)));
-            Register<ISubscribeService>(client => new SubscribeService(client, (host, subKey) => GetMonitor(client, host, subKey), Resolve<ISubscriptionRegistry>(client)));
+            Register<ISubscribeService>(client => new SubscribeService(client, env => GetMonitor(client, env), Resolve<ISubscriptionRegistry>(client)));
         }
 
         public void Register<TService>(Func<IPubNubClient, TService> resolver)
@@ -103,15 +103,14 @@ namespace PubNub.Async.Configuration
 			return (TService) Services[typeof (TService)](client);
         }
 
-        private readonly IDictionary<Tuple<string, string>, ISubscriptionMonitor> _monitors = new ConcurrentDictionary<Tuple<string, string>, ISubscriptionMonitor>();
-        private ISubscriptionMonitor GetMonitor(IPubNubClient client, string host, string subscribeKey)
+        private readonly IDictionary<IPubNubEnvironment, ISubscriptionMonitor> _monitors = new ConcurrentDictionary<IPubNubEnvironment, ISubscriptionMonitor>();
+        private ISubscriptionMonitor GetMonitor(IPubNubClient client, IPubNubEnvironment environment)
         {
-            var key = Tuple.Create(host, subscribeKey);
-            if (!_monitors.ContainsKey(key))
+            if (!_monitors.ContainsKey(environment))
             {
-                _monitors[key] = new SubscriptionMonitor(host, subscribeKey, Resolve<ISubscriptionRegistry>(client));
+                _monitors[environment] = new SubscriptionMonitor(environment, Resolve<ISubscriptionRegistry>(client));
             }
-            return _monitors[key];
+            return _monitors[environment];
         }
     }
 }

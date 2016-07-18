@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Moq;
 using Ploeh.AutoFixture;
 using PubNub.Async.Configuration;
-using PubNub.Async.Extensions;
 using PubNub.Async.Models.Channel;
 using PubNub.Async.Models.Subscribe;
 using PubNub.Async.Services.Subscribe;
@@ -27,7 +26,7 @@ namespace PubNub.Async.Tests.Services.Subscribe
             
             var channel = new Channel(channelName);
 
-            MessageReceivedHandler handler = args => { };
+            MessageReceivedHandler<object> handler = async args => { };
 
             var expectedResponse = Fixture.Create<SubscribeResponse>();
 
@@ -60,9 +59,9 @@ namespace PubNub.Async.Tests.Services.Subscribe
             var mockRegistry = new Mock<ISubscriptionRegistry>();
             mockRegistry
                 .Setup(x => x.Register(mockEnv.Object, channel, handler))
-                .Callback<IPubNubEnvironment, Channel, MessageReceivedHandler>((e, c, h) => registerCalledTicks = DateTime.UtcNow.Ticks);
+                .Callback<IPubNubEnvironment, Channel, MessageReceivedHandler<object>>((e, c, h) => registerCalledTicks = DateTime.UtcNow.Ticks);
 
-            var subject = new SubscribeService(mockClient.Object, (s, s1) => mockMonitor.Object, mockRegistry.Object);
+            var subject = new SubscribeService(mockClient.Object, env => mockMonitor.Object, mockRegistry.Object);
 
             var result = await subject.Subscribe(handler);
 
