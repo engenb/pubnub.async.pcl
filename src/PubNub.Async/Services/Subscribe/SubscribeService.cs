@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using Flurl;
+using Flurl.Http;
 using PubNub.Async.Configuration;
+using PubNub.Async.Extensions;
 using PubNub.Async.Models.Channel;
 using PubNub.Async.Models.Subscribe;
 
@@ -9,7 +13,7 @@ namespace PubNub.Async.Services.Subscribe
 {
     public class SubscribeService : ISubscribeService
     {
-        private Func<string, string, ISubscriptionMonitor> MonitorFactory { get; }
+        private ISubscriptionMonitor Monitor { get; }
         private ISubscriptionRegistry Subscriptions { get; }
         
         private IPubNubEnvironment Environment { get; }
@@ -17,36 +21,34 @@ namespace PubNub.Async.Services.Subscribe
 
         public SubscribeService(
             IPubNubClient client,
-            Func<string, string, ISubscriptionMonitor> monitorFactory,
+            Func<IPubNubEnvironment, ISubscriptionMonitor> monitorFactory,
             ISubscriptionRegistry subscriptions)
         {
             Environment = client.Environment;
             Channel = client.Channel;
 
-            MonitorFactory = monitorFactory;
+            Monitor = monitorFactory(Environment);
             Subscriptions = subscriptions;
         }
 
-        public async Task<SubscribeResponse> Subscribe(MessageReceivedHandler handler)
+        public async Task<SubscribeResponse> Subscribe<TMessage>(MessageReceivedHandler<TMessage> handler)
         {
-            var monitor = MonitorFactory(Environment.Host, Environment.SubscribeKey);
-            await monitor.Stop();
+            await Monitor.Stop();
 
             Subscriptions.Register(Environment, Channel, handler);
 
-            return await monitor.Start();
+            return await Monitor.Start();
         }
 
         public async Task Unsubscribe()
         {
-            var monitor = MonitorFactory(Environment.Host, Environment.SubscribeKey);
-            await monitor.Stop();
+            await Monitor.Stop();
 
             Subscriptions.Unregister(Environment, Channel);
 
-            if (Subscriptions.EnvironmentSubscriptions(Environment.SubscribeKey).Any())
+            if (Subscriptions.Get(Environment.SubscribeKey).Any())
             {
-                await monitor.Start();
+                await Monitor.Start();
             }
         }
     }

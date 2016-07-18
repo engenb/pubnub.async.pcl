@@ -1,38 +1,32 @@
-﻿using System.Collections.Generic;
+﻿using System.Threading.Tasks;
 using PubNub.Async.Configuration;
 using PubNub.Async.Services.Subscribe;
 
 namespace PubNub.Async.Models.Subscribe
 {
-    public class Subscription
+    public abstract class Subscription
     {
-        public IPubNubEnvironment Environment { get; }
-        public Channel.Channel Channel { get; }
+        public string SubscribeKey { get; }
+        public string Channel { get; }
 
-        public ISet<MessageReceivedHandler> Handlers { get;}
-
-        public Subscription(IPubNubEnvironment environment, Channel.Channel channel, MessageReceivedHandler handler = null)
+        public bool Encrypted { get; }
+        
+        protected Subscription(IPubNubEnvironment environment, Channel.Channel channel)
         {
-            Environment = environment.Clone();
-            Channel = channel.Clone();
+            SubscribeKey = environment.SubscribeKey;
+            Channel = channel.Name;
+            Encrypted = channel.Encrypted;
+        }
 
-            Handlers = new HashSet<MessageReceivedHandler>();
-
-            if (handler != null)
+        public async Task OnMessageReceived(PubNubSubscribeResponseMessage message)
+        {
+            if (SubscribeKey == message.SubscribeKey && Channel == message.Channel)
             {
-                Handlers.Add(handler);
+                await ProcessMessage(message).ConfigureAwait(false);
             }
         }
 
-        public void Add(MessageReceivedHandler handler)
-        {
-            Handlers.Add(handler);
-        }
-
-        public void Remove(MessageReceivedHandler handler)
-        {
-            Handlers.Remove(handler);
-        }
+        public abstract Task ProcessMessage(PubNubSubscribeResponseMessage message);
 
         public override bool Equals(object obj)
         {
@@ -41,8 +35,7 @@ namespace PubNub.Async.Models.Subscribe
                 return false;
             }
             var that = (Subscription) obj;
-            return this.Environment.SubscribeKey == that.Environment.SubscribeKey
-                   && this.Environment.SessionUuid == that.Environment.SessionUuid
+            return this.SubscribeKey == that.SubscribeKey
                    && this.Channel == that.Channel;
         }
 
@@ -50,11 +43,55 @@ namespace PubNub.Async.Models.Subscribe
         {
             var hash = 17;
 
-            hash = hash*23 + Environment.SubscribeKey.GetHashCode();
-            hash = hash*23 + Environment.SessionUuid.GetHashCode();
-            hash = hash*23 + Channel.Name.GetHashCode();
+            hash = hash*23 + SubscribeKey.GetHashCode();
+            hash = hash*23 + Channel.GetHashCode();
 
             return hash;
         }
     }
+
+    public class Subscription<TMessage> : Subscription
+    {
+        public event MessageReceivedHandler<TMessage> MessageReceived;
+
+        public Subscription(
+            IPubNubEnvironment environment,
+            Channel.Channel channel,
+            MessageReceivedHandler<TMessage> handler = null) :
+            base(environment, channel)
+        {
+            if (handler != null)
+            {
+                MessageReceived += handler;
+            }
+        }
+
+        public void Add(MessageReceivedHandler<TMessage> handler)
+        {
+            MessageReceived += handler;
+        }
+
+        public void Remove(MessageReceivedHandler<TMessage> handler)
+        {
+            MessageReceived -= handler;
+        }
+
+        public override async Task ProcessMessage(PubNubSubscribeResponseMessage message)
+        {
+            if (MessageReceived != null)
+            {
+                await MessageReceived(new MessageReceivedEventArgs<TMessage>
+                {
+                    SubscribeKey = message.SubscribeKey,
+                    SenderSessionUuid = message.SessionUuid,
+                    Channel = message.Channel,
+
+                    MessageJson = message.Data,
+
+                    Sent = message.Processed.TimeToken
+                }).ConfigureAwait(false);
+            }
+        }
+    }
+
 }

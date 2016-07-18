@@ -83,13 +83,13 @@
     <Compile Include="Services\Publish\IPublishService.cs" />
     <Compile Include="Services\Publish\PublishService.cs" />
     <Compile Include="Services\Subscribe\ISubscriptionMonitor.cs" />
-    <Compile Include="Services\Subscribe\ISubscriptionRegistry.cs" />
     <Compile Include="Services\Subscribe\ISubscribeService.cs" />
+    <Compile Include="Services\Subscribe\ISubscriptionRegistry.cs" />
     <Compile Include="Services\Subscribe\MessageReceivedEventArgs.cs" />
     <Compile Include="Services\Subscribe\MessageReceivedHandler.cs" />
     <Compile Include="Services\Subscribe\SubscriptionMonitor.cs" />
-    <Compile Include="Services\Subscribe\SubscriptionRegistry.cs" />
     <Compile Include="Services\Subscribe\SubscribeService.cs" />
+    <Compile Include="Services\Subscribe\SubscriptionRegistry.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Flurl, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">

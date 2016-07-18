@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using PubNub.Async.Configuration;
 using PubNub.Async.Models.Channel;
 using PubNub.Async.Models.Subscribe;
@@ -10,57 +10,70 @@ namespace PubNub.Async.Services.Subscribe
 {
     public class SubscriptionRegistry : ISubscriptionRegistry
     {
-        private IDictionary<string, IDictionary<int, Subscription>> Subscriptions { get; }
-        
+        private IDictionary<string, ISet<Subscription>> Subscriptions { get; }
+
         public SubscriptionRegistry()
         {
-            Subscriptions = new ConcurrentDictionary<string, IDictionary<int, Subscription>>();
+            Subscriptions = new ConcurrentDictionary<string, ISet<Subscription>>();
         }
 
-        public void Register(IPubNubEnvironment environment, Channel channel, MessageReceivedHandler handler)
+        public string Channels(string subscribeKey)
         {
-            var subscription = new Subscription(environment, channel, handler);
-            // if we're already subscribed, just add the new handler
-            var subHash = subscription.GetHashCode();
-            if (!Subscriptions.ContainsKey(environment.SubscribeKey))
-            {
-                Subscriptions[environment.SubscribeKey] = new ConcurrentDictionary<int, Subscription>();
-            }
-            var subs = Subscriptions[environment.SubscribeKey];
+            return Subscriptions.ContainsKey(subscribeKey)
+                ? string.Join(",", Subscriptions[subscribeKey]
+                    .Select(x => x.Channel)
+                    .ToArray())
+                : string.Empty;
+        }
 
-            if (subs.ContainsKey(subHash))
+        public Subscription[] Get(string subscribeKey)
+        {
+            return Subscriptions.ContainsKey(subscribeKey)
+                ? Subscriptions[subscribeKey].ToArray()
+                : new Subscription[0];
+        }
+
+        public void Register<TMessage>(IPubNubEnvironment environment, Channel channel, MessageReceivedHandler<TMessage> handler)
+        {
+            var subscription = new Subscription<TMessage>(environment, channel, handler);
+
+            var subscribeKey = environment.SubscribeKey;
+            if (!Subscriptions.ContainsKey(subscribeKey))
             {
-                subs[subHash].Add(handler);
+                Subscriptions[subscribeKey] = new HashSet<Subscription>();
             }
-            else
-            {
-                // if not, add it
-                subs[subHash] = subscription;
-            }
+
+            Subscriptions[subscribeKey].Add(subscription);
         }
 
         public void Unregister(IPubNubEnvironment environment, Channel channel)
         {
-            if (Subscriptions.ContainsKey(environment.SubscribeKey))
+            var subscribeKey = environment.SubscribeKey;
+            if (Subscriptions.ContainsKey(subscribeKey))
             {
-                Subscriptions[environment.SubscribeKey].Remove(new Subscription(environment, channel).GetHashCode());
+                var subs = Subscriptions[subscribeKey];
+                var sub = subs.SingleOrDefault(x => x.SubscribeKey == subscribeKey && x.Channel == channel.Name);
+                if (sub != null)
+                {
+                    subs.Remove(sub);
+                }
             }
         }
 
-        public IEnumerable<MessageReceivedHandler> MessageHandlers(IPubNubEnvironment environment, Channel channel)
+        public async Task MessageReceived(PubNubSubscribeResponseMessage message)
         {
-            var subHash = new Subscription(environment, channel).GetHashCode();
-            return Subscriptions.ContainsKey(environment.SubscribeKey)
-                && Subscriptions[environment.SubscribeKey].ContainsKey(subHash)
-                ? Subscriptions[environment.SubscribeKey][subHash].Handlers.ToArray()
-                : new MessageReceivedHandler[0];
-        }
-
-        public IEnumerable<Subscription> EnvironmentSubscriptions(string subscribeKey)
-        {
-            return Subscriptions.ContainsKey(subscribeKey)
-                ? Subscriptions[subscribeKey].Values
-                : new Subscription[0];
+            var subscribeKey = message.SubscribeKey;
+            if (Subscriptions.ContainsKey(subscribeKey))
+            {
+                var subs = Subscriptions[subscribeKey];
+                var channelSubs = subs
+                    .Where(x => x.Channel == message.Channel)
+                    .ToArray();
+                foreach (var channelSub in channelSubs)
+                {
+                    await channelSub.OnMessageReceived(message);
+                }
+            }
         }
     }
 }
