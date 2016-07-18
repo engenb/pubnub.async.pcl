@@ -7,8 +7,8 @@ using Newtonsoft.Json;
 using PCLCrypto;
 using PubNub.Async.Configuration;
 using PubNub.Async.Extensions;
+using PubNub.Async.Models;
 using PubNub.Async.Models.Access;
-using PubNub.Async.Models.Channel;
 using static PCLCrypto.WinRTCrypto;
 
 namespace PubNub.Async.Services.Access

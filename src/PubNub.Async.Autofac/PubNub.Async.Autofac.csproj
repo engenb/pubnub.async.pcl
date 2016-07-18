@@ -49,6 +49,7 @@
     <Compile Include="PubNubAutofacBootstrapper.cs" />
     <Compile Include="PubNubAutofacEnvironment.cs" />
     <Compile Include="PubNubAsyncModule.cs" />
+    <Compile Include="ResolveSubscription.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Autofac, Version=3.5.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">

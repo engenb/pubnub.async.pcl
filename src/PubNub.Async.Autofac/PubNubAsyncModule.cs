@@ -1,6 +1,7 @@
 ﻿using System;
 using Autofac;
 using PubNub.Async.Configuration;
+using PubNub.Async.Models.Subscribe;
 using PubNub.Async.Services.Access;
 using PubNub.Async.Services.Crypto;
 using PubNub.Async.Services.History;
@@ -49,6 +50,14 @@ namespace PubNub.Async.Autofac
 		    builder
 		        .RegisterType<SubscriptionRegistry>()
 		        .As<ISubscriptionRegistry>()
+		        .SingleInstance();
+
+		    builder
+		        .RegisterGeneric(typeof(Subscription<>));
+
+		    builder
+		        .RegisterType<ResolveSubscription>()
+		        .As<IResolveSubscription>()
 		        .SingleInstance();
 
             // ensure that all dependent services have the same client instance

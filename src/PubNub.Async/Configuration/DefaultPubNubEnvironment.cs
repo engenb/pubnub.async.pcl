@@ -64,15 +64,36 @@ namespace PubNub.Async.Configuration
 	                {
 	                    if (_subscriptionRegistry == null)
 	                    {
-	                        _subscriptionRegistry = new SubscriptionRegistry();
+	                        _subscriptionRegistry = new SubscriptionRegistry(ResolveSubscriptionInstance);
 	                    }
 	                }
 	            }
 	            return _subscriptionRegistry;
 	        }
 	    }
-        
-		private ConcurrentDictionary<Type, Func<IPubNubClient, object>> Services { get; }
+
+        private static readonly object ResolveSubscriptionSyncRoot = new object();
+        private static IResolveSubscription _resolveSubscription;
+
+        public static IResolveSubscription ResolveSubscriptionInstance
+        {
+            get
+            {
+                if (_resolveSubscription == null)
+                {
+                    lock (ResolveSubscriptionSyncRoot)
+                    {
+                        if (_resolveSubscription == null)
+                        {
+                            _resolveSubscription = new DefaultResolveSubscription(CryptoInstance);
+                        }
+                    }
+                }
+                return _resolveSubscription;
+            }
+        }
+
+        private ConcurrentDictionary<Type, Func<IPubNubClient, object>> Services { get; }
 
 		/// <summary>
 		/// DefaultPubNubEnvironment utilizes a flavor of the infamous service locator pattern.
@@ -86,10 +107,12 @@ namespace PubNub.Async.Configuration
 			Register<ICryptoService>(client => CryptoInstance);
             Register<IAccessRegistry>(client => AccessRegistryInstance);
             Register<ISubscriptionRegistry>(client => SubscriptionRegistryInstance);
+            Register<IResolveSubscription>(client => ResolveSubscriptionInstance);
 
             Register<IAccessManager>(client => new AccessManager(client, Resolve<IAccessRegistry>(client)));
 			Register<IHistoryService>(client => new HistoryService(client, Resolve<ICryptoService>(client), Resolve<IAccessManager>(client)));
 			Register<IPublishService>(client => new PublishService(client, Resolve<ICryptoService>(client), Resolve<IAccessManager>(client)));
+
             Register<ISubscribeService>(client => new SubscribeService(client, env => GetMonitor(client, env), Resolve<ISubscriptionRegistry>(client)));
         }
 

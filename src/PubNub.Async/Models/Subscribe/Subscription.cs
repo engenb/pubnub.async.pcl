@@ -1,26 +1,30 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using PubNub.Async.Configuration;
+using PubNub.Async.Services.Crypto;
 using PubNub.Async.Services.Subscribe;
 
 namespace PubNub.Async.Models.Subscribe
 {
     public abstract class Subscription
     {
-        public string SubscribeKey { get; }
-        public string Channel { get; }
-
-        public bool Encrypted { get; }
+        public string SubscribeKey => Environment.SubscribeKey;
+        public string ChannelName => Channel.Name;
         
-        protected Subscription(IPubNubEnvironment environment, Channel.Channel channel)
+        protected IPubNubEnvironment Environment { get; }
+        protected Channel Channel { get; }
+
+        protected Subscription(IPubNubEnvironment environment, Channel channel)
         {
-            SubscribeKey = environment.SubscribeKey;
-            Channel = channel.Name;
-            Encrypted = channel.Encrypted;
+            Environment = environment;
+            Channel = channel;
         }
 
         public async Task OnMessageReceived(PubNubSubscribeResponseMessage message)
         {
-            if (SubscribeKey == message.SubscribeKey && Channel == message.Channel)
+            if (SubscribeKey == message.SubscribeKey && ChannelName == message.Channel)
             {
                 await ProcessMessage(message).ConfigureAwait(false);
             }
@@ -52,18 +56,17 @@ namespace PubNub.Async.Models.Subscribe
 
     public class Subscription<TMessage> : Subscription
     {
+        private ICryptoService Crypto { get; }
+
         public event MessageReceivedHandler<TMessage> MessageReceived;
 
         public Subscription(
+            ICryptoService crypto,
             IPubNubEnvironment environment,
-            Channel.Channel channel,
-            MessageReceivedHandler<TMessage> handler = null) :
+            Channel channel) :
             base(environment, channel)
         {
-            if (handler != null)
-            {
-                MessageReceived += handler;
-            }
+            Crypto = crypto;
         }
 
         public void Add(MessageReceivedHandler<TMessage> handler)
@@ -80,16 +83,35 @@ namespace PubNub.Async.Models.Subscribe
         {
             if (MessageReceived != null)
             {
-                await MessageReceived(new MessageReceivedEventArgs<TMessage>
+                JToken decryptedMsgJson = null;
+                var msg = default(TMessage);
+
+                try
                 {
-                    SubscribeKey = message.SubscribeKey,
-                    SenderSessionUuid = message.SessionUuid,
-                    Channel = message.Channel,
+                    if (Channel.Encrypted)
+                    {
+                        var decrypted = Crypto.Decrypt(Channel.Cipher, message.Data.ToObject<string>());
+                        decryptedMsgJson = JToken.Parse(decrypted);
+                    }
+                    else
+                    {
+                        decryptedMsgJson = message.Data;
+                    }
+                    msg = decryptedMsgJson.ToObject<TMessage>();
+                }
+                catch (Exception)
+                {
+                    //TODO: warn of decryption failure (wrong cipher?) conversion failure (wrong model?)
+                }
 
-                    MessageJson = message.Data,
-
-                    Sent = message.Processed.TimeToken
-                }).ConfigureAwait(false);
+                await MessageReceived(new MessageReceivedEventArgs<TMessage>(
+                   message.SubscribeKey,
+                   message.Channel,
+                   message.SessionUuid,
+                   message.Processed.TimeToken,
+                   message.Data,
+                   decryptedMsgJson,
+                   msg)).ConfigureAwait(false);
             }
         }
     }

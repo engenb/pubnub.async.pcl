@@ -3,17 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using PubNub.Async.Configuration;
-using PubNub.Async.Models.Channel;
+using PubNub.Async.Models;
 using PubNub.Async.Models.Subscribe;
 
 namespace PubNub.Async.Services.Subscribe
 {
     public class SubscriptionRegistry : ISubscriptionRegistry
     {
+        private IResolveSubscription ResolveSubscription { get; }
+
         private IDictionary<string, ISet<Subscription>> Subscriptions { get; }
 
-        public SubscriptionRegistry()
+        public SubscriptionRegistry(IResolveSubscription resolveSubscription)
         {
+            ResolveSubscription = resolveSubscription;
+
             Subscriptions = new ConcurrentDictionary<string, ISet<Subscription>>();
         }
 
@@ -21,7 +25,7 @@ namespace PubNub.Async.Services.Subscribe
         {
             return Subscriptions.ContainsKey(subscribeKey)
                 ? string.Join(",", Subscriptions[subscribeKey]
-                    .Select(x => x.Channel)
+                    .Select(x => x.ChannelName)
                     .ToArray())
                 : string.Empty;
         }
@@ -35,15 +39,36 @@ namespace PubNub.Async.Services.Subscribe
 
         public void Register<TMessage>(IPubNubEnvironment environment, Channel channel, MessageReceivedHandler<TMessage> handler)
         {
-            var subscription = new Subscription<TMessage>(environment, channel, handler);
-
             var subscribeKey = environment.SubscribeKey;
             if (!Subscriptions.ContainsKey(subscribeKey))
             {
                 Subscriptions[subscribeKey] = new HashSet<Subscription>();
             }
 
-            Subscriptions[subscribeKey].Add(subscription);
+            var sub = Subscriptions[subscribeKey]
+                .SingleOrDefault(x => x.SubscribeKey == subscribeKey && x.ChannelName == channel.Name) as Subscription<TMessage>;
+
+            if (sub == null)
+            {
+                sub = ResolveSubscription.Resolve<TMessage>(environment, channel);
+                Subscriptions[subscribeKey].Add(sub);
+            }
+
+            sub.MessageReceived += handler;
+        }
+
+        public void Unregister<TMessage>(IPubNubEnvironment environment, Channel channel, MessageReceivedHandler<TMessage> handler)
+        {
+            var subscribeKey = environment.SubscribeKey;
+            if (Subscriptions.ContainsKey(subscribeKey))
+            {
+                var subs = Subscriptions[subscribeKey];
+                var sub = subs.SingleOrDefault(x => x.SubscribeKey == subscribeKey && x.ChannelName == channel.Name) as Subscription<TMessage>;
+                if (sub != null)
+                {
+                    sub.MessageReceived -= handler;
+                }
+            }
         }
 
         public void Unregister(IPubNubEnvironment environment, Channel channel)
@@ -52,7 +77,7 @@ namespace PubNub.Async.Services.Subscribe
             if (Subscriptions.ContainsKey(subscribeKey))
             {
                 var subs = Subscriptions[subscribeKey];
-                var sub = subs.SingleOrDefault(x => x.SubscribeKey == subscribeKey && x.Channel == channel.Name);
+                var sub = subs.SingleOrDefault(x => x.SubscribeKey == subscribeKey && x.ChannelName == channel.Name);
                 if (sub != null)
                 {
                     subs.Remove(sub);
@@ -67,7 +92,7 @@ namespace PubNub.Async.Services.Subscribe
             {
                 var subs = Subscriptions[subscribeKey];
                 var channelSubs = subs
-                    .Where(x => x.Channel == message.Channel)
+                    .Where(x => x.ChannelName == message.Channel)
                     .ToArray();
                 foreach (var channelSub in channelSubs)
                 {

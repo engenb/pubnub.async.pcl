@@ -32,23 +32,21 @@ namespace PubNub.Async.Tests.App
 
             Console.WriteLine($"Subscribing to {Settings.Default.Channel}1");
             var subscribeResult1 = $"{Settings.Default.Channel}1"
+                .EncryptedWith(Settings.Default.CipherKey)
                 .Subscribe<Message>(Handler1)
                 .Result;
-
-            if (!subscribeResult1.Success)
-            {
-                Console.Error.WriteLine("Something went wrong");
-                Console.WriteLine("Press any key to exit.");
-                Console.Read();
-                Environment.Exit(1);
-            }
 
             Console.WriteLine($"Subscribing to {Settings.Default.Channel}2");
             var subscribeResult2 = $"{Settings.Default.Channel}2"
                 .Subscribe<Message>(Handler2)
                 .Result;
 
-            if (!subscribeResult2.Success)
+            Console.WriteLine($"Subscribing redundant to {Settings.Default.Channel}2");
+            var subscribeResult3 = $"{Settings.Default.Channel}2"
+                .Subscribe<Message>(Handler3)
+                .Result;
+
+            if (!subscribeResult1.Success || !subscribeResult2.Success || !subscribeResult3.Success)
             {
                 Console.Error.WriteLine("Something went wrong");
                 Console.WriteLine("Press any key to exit.");
@@ -108,6 +106,16 @@ namespace PubNub.Async.Tests.App
         {
             var priorForeground = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Blue;
+
+            Console.WriteLine($"{args.Message.Text} [{args.Sent}]");
+
+            Console.ForegroundColor = priorForeground;
+        }
+
+        private static async Task Handler3(MessageReceivedEventArgs<Message> args)
+        {
+            var priorForeground = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Red;
 
             Console.WriteLine($"{args.Message.Text} [{args.Sent}]");
 
