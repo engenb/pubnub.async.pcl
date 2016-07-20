@@ -21,15 +21,6 @@ namespace PubNub.Async.Services.Subscribe
             Subscriptions = new ConcurrentDictionary<string, ISet<Subscription>>();
         }
 
-        public string Channels(string subscribeKey)
-        {
-            return Subscriptions.ContainsKey(subscribeKey)
-                ? string.Join(",", Subscriptions[subscribeKey]
-                    .Select(x => x.ChannelName)
-                    .ToArray())
-                : string.Empty;
-        }
-
         public Subscription[] Get(string subscribeKey)
         {
             return Subscriptions.ContainsKey(subscribeKey)
@@ -46,7 +37,10 @@ namespace PubNub.Async.Services.Subscribe
             }
 
             var sub = Subscriptions[subscribeKey]
-                .SingleOrDefault(x => x.SubscribeKey == subscribeKey && x.ChannelName == channel.Name) as Subscription<TMessage>;
+                .SingleOrDefault(x =>
+                    x.SubscribeKey == subscribeKey &&
+                    x.AuthenticationKey == environment.AuthenticationKey &&
+                    x.ChannelName == channel.Name) as Subscription<TMessage>;
 
             if (sub == null)
             {

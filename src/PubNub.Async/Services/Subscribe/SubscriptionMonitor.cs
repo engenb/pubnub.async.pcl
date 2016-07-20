@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,30 +14,30 @@ namespace PubNub.Async.Services.Subscribe
     public class SubscriptionMonitor : ISubscriptionMonitor
     {
         protected static readonly SemaphoreSlim Mutex = new SemaphoreSlim(1);
-
-        private string Host { get; }
-        private string SubscribeKey { get; }
-
-        private ISubscriptionRegistry Subscriptions { get; }
         
-        public long? SubscribeTimeToken { get; set; }
-
-        private Task Monitor { get; set; }
         private CancellationTokenSource CancellationSource { get; set; }
 
-        public SubscriptionMonitor(
-            IPubNubEnvironment environment,
-            ISubscriptionRegistry subscriptions)
-        {
-            Host = environment.Host;
-            SubscribeKey = environment.SubscribeKey;
+        private ISubscriptionRegistry Subscriptions { get; }
 
+        private IDictionary<string, long> SubscribeTimeTokens { get; }
+
+        private IList<Task> MonitorTasks { get; }
+
+        public SubscriptionMonitor(ISubscriptionRegistry subscriptions)
+        {
             Subscriptions = subscriptions;
+
+            SubscribeTimeTokens = new ConcurrentDictionary<string, long>();
+            MonitorTasks = new List<Task>();
         }
 
-        public async Task<SubscribeResponse> Start()
+        public void Register(IPubNubEnvironment environment, long subscribeTimeToken)
         {
-            SubscribeResponse ret = null;
+            SubscribeTimeTokens[environment.AuthenticationKey] = subscribeTimeToken;
+        }
+
+        public async Task Start(IPubNubEnvironment environment)
+        {
             await Mutex.WaitAsync().ConfigureAwait(false);
             try
             {
@@ -47,74 +48,61 @@ namespace PubNub.Async.Services.Subscribe
 
                 if (!CancellationSource.IsCancellationRequested)
                 {
-                    var subResponse = await Subscribe();
-                    ret = new SubscribeResponse {Success = true};
-
-                    Monitor = Task.Run(async () =>
+                    var subs = Subscriptions.Get(environment.SubscribeKey);
+                    var authSubs = subs.GroupBy(x => x.AuthenticationKey);
+                    foreach (var authSub in authSubs)
                     {
-                        while (!CancellationSource.IsCancellationRequested)
+                        MonitorTasks.Add(Task.Run(async () =>
                         {
-                            await ReceiveMessages();
-                        }
-                    }, CancellationSource.Token);
+                            while (!CancellationSource.IsCancellationRequested)
+                            {
+                                await ReceiveMessages(environment, authSub.Key, authSub);
+                            }
+                        }, CancellationSource.Token));
+                    }
                 }
             }
             finally
             {
                 Mutex.Release();
             }
-            return ret;
         }
 
-        public async Task Stop()
+        public async Task Stop(IPubNubEnvironment environment)
         {
             await Mutex.WaitAsync().ConfigureAwait(false);
 
             try
             {
-                if (CancellationSource != null)
-                {
-                    CancellationSource.Cancel();
-                    await Monitor;
-                    SubscribeTimeToken = null;
-                }
+                CancellationSource?.Cancel();
+                await Task.WhenAll(MonitorTasks);
             }
             finally
             {
+                MonitorTasks.Clear();
                 CancellationSource = null;
                 Mutex.Release();
             }
         }
 
-        private async Task<PubNubSubscribeResponse> Subscribe()
+        private async Task ReceiveMessages(
+            IPubNubEnvironment environment,
+            string authenticationKey,
+            IEnumerable<Subscription> subscriptions)
         {
-            try
-            {
-                var response = await BuildSubscribeUrl()
-                    .GetAsync(CancellationSource.Token)
-                    .ProcessResponse()
-                    .ReceiveJson<PubNubSubscribeResponse>();
+            var channelsCsv = string.Join(",", subscriptions.Select(x => x.ChannelName).ToArray());
 
-                SubscribeTimeToken = response.SubscribeTime.TimeToken;
-                return response;
-            }
-            catch (FlurlHttpException ex)
-            {
-                if (!(ex.InnerException is TaskCanceledException))
-                {
-                    throw;
-                }
-            }
-            return null;
-        }
+            var requestUrl = environment.Host
+                .AppendPathSegments("v2", "subscribe")
+                .AppendPathSegment(environment.SubscribeKey)
+                .AppendPathSegment(channelsCsv)
+                .AppendPathSegment("0")
+                .SetQueryParam("uuid", environment.SessionUuid)
+                .SetQueryParam("auth", authenticationKey);
 
-        private async Task ReceiveMessages()
-        {
-            var requestUrl = BuildSubscribeUrl();
-
-            if (SubscribeTimeToken != null)
+            if (SubscribeTimeTokens.ContainsKey(authenticationKey))
             {
-                requestUrl.AppendPathSegment(SubscribeTimeToken);
+                requestUrl.AppendPathSegment(SubscribeTimeTokens[authenticationKey]);
             }
 
             try
@@ -124,7 +112,7 @@ namespace PubNub.Async.Services.Subscribe
                     .ProcessResponse()
                     .ReceiveJson<PubNubSubscribeResponse>();
 
-                SubscribeTimeToken = response.SubscribeTime.TimeToken;
+                SubscribeTimeTokens[authenticationKey] = response.SubscribeTime.TimeToken;
 
                 if (response.Messages.Any())
                 {
@@ -141,15 +129,6 @@ namespace PubNub.Async.Services.Subscribe
                     throw;
                 }
             }
-        }
-
-        private Url BuildSubscribeUrl()
-        {
-            return Host
-                .AppendPathSegments("v2", "subscribe")
-                .AppendPathSegment(SubscribeKey)
-                .AppendPathSegment(Subscriptions.Channels(SubscribeKey))
-                .AppendPathSegment("0");
         }
     }
 }

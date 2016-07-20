@@ -1,7 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
+using Flurl;
+using Flurl.Http;
 using PubNub.Async.Configuration;
+using PubNub.Async.Extensions;
 using PubNub.Async.Models;
 using PubNub.Async.Models.Subscribe;
 
@@ -17,46 +23,128 @@ namespace PubNub.Async.Services.Subscribe
 
         public SubscribeService(
             IPubNubClient client,
-            Func<IPubNubEnvironment, ISubscriptionMonitor> monitorFactory,
+            ISubscriptionMonitor monitor,
             ISubscriptionRegistry subscriptions)
         {
             Environment = client.Environment;
             Channel = client.Channel;
 
-            Monitor = monitorFactory(Environment);
+            Monitor = monitor;
             Subscriptions = subscriptions;
         }
 
         public async Task<SubscribeResponse> Subscribe<TMessage>(MessageReceivedHandler<TMessage> handler)
         {
-            await Monitor.Stop();
+            //stop the monitor, to be reconfigured
+            await Monitor.Stop(Environment);
 
-            Subscriptions.Register(Environment, Channel, handler);
+            // attempt to subscribe before registering the channel
+            var channels = Subscriptions
+                .Get(Environment.SubscribeKey)
+                .Where(x => x.AuthenticationKey == Environment.AuthenticationKey)
+                .Select(x => x.ChannelName)
+                .ToList();
 
-            return await Monitor.Start();
+            channels.Add(Channel.Name);
+
+            var channelsCsv = string.Join(",", channels);
+
+            var requestUrl = Environment.Host
+                .AppendPathSegments("v2", "subscribe")
+                .AppendPathSegment(Environment.SubscribeKey)
+                .AppendPathSegment(channelsCsv)
+                .AppendPathSegment("0")
+                .SetQueryParam("uuid", Environment.SessionUuid);
+
+            if (Channel.Secured)
+            {
+                if (string.IsNullOrWhiteSpace(Environment.AuthenticationKey))
+                {
+                    throw new InvalidOperationException("A AuthenticationKey must be provided when subscribing to a secured channel.");
+                }
+                requestUrl.SetQueryParam("auth", Environment.AuthenticationKey);
+            }
+
+            try
+            {
+                var httpResponse = await requestUrl
+                    .AllowHttpStatus("403")
+                    .GetAsync()
+                    .ProcessResponse();
+
+                var subResponse = await HandleResponse(httpResponse);
+
+                //successfully subscribed, so register the channel for monitoring
+                if (subResponse.Success)
+                {
+                    Monitor.Register(Environment, subResponse.SubscribeTime);
+                    Subscriptions.Register(Environment, Channel, handler);
+                }
+                return subResponse;
+            }
+            catch (FlurlHttpException ex)
+            {
+                if (!(ex.InnerException is TaskCanceledException))
+                {
+                    throw;
+                }
+            }
+            finally
+            {
+                // restart the monitor with newly registered subscription
+                await StartMonitor(Environment);
+            }
+            return new SubscribeResponse();
         }
 
         public async Task Unsubscribe<TMessage>(MessageReceivedHandler<TMessage> handler)
         {
-            await Monitor.Stop();
+            await Monitor.Stop(Environment);
 
             Subscriptions.Unregister(Environment, Channel, handler);
 
-            if (Subscriptions.Get(Environment.SubscribeKey).Any())
-            {
-                await Monitor.Start();
-            }
+            await StartMonitor(Environment);
         }
 
         public async Task Unsubscribe()
         {
-            await Monitor.Stop();
+            await Monitor.Stop(Environment);
 
             Subscriptions.Unregister(Environment, Channel);
 
-            if (Subscriptions.Get(Environment.SubscribeKey).Any())
+            await StartMonitor(Environment);
+        }
+
+        private async Task StartMonitor(IPubNubEnvironment environment)
+        {
+            if (Subscriptions.Get(environment.SubscribeKey).Any())
             {
-                await Monitor.Start();
+                await Monitor.Start(environment);
+            }
+        }
+
+        private static async Task<SubscribeResponse> HandleResponse(HttpResponseMessage response)
+        {
+            if (response.IsSuccessStatusCode)
+            {
+                var responseJson = await Task.FromResult(response)
+                    .ReceiveJson<PubNubSubscribeResponse>();
+
+                return new SubscribeResponse
+                {
+                    Success = true,
+                    SubscribeTime = responseJson.SubscribeTime.TimeToken
+                };
+            }
+            else
+            {
+                var responseJson = await Task.FromResult(response)
+                    .ReceiveJson<PubNubSubscribeError>();
+                return new SubscribeResponse
+                {
+                    Success = false,
+                    Message = responseJson.Message
+                };
             }
         }
     }
