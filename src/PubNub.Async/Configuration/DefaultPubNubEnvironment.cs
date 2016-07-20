@@ -70,7 +70,28 @@ namespace PubNub.Async.Configuration
 	            }
 	            return _subscriptionRegistry;
 	        }
-	    }
+        }
+
+        private static readonly object SubscriptionMonitorSyncRoot = new object();
+        private static ISubscriptionMonitor _subscriptionMonitor;
+
+        public static ISubscriptionMonitor SubscriptionMonitorInstance
+        {
+            get
+            {
+                if (_subscriptionMonitor == null)
+                {
+                    lock (SubscriptionMonitorSyncRoot)
+                    {
+                        if (_subscriptionMonitor == null)
+                        {
+                            _subscriptionMonitor = new SubscriptionMonitor(SubscriptionRegistryInstance);
+                        }
+                    }
+                }
+                return _subscriptionMonitor;
+            }
+        }
 
         private static readonly object ResolveSubscriptionSyncRoot = new object();
         private static IResolveSubscription _resolveSubscription;
@@ -107,13 +128,14 @@ namespace PubNub.Async.Configuration
 			Register<ICryptoService>(client => CryptoInstance);
             Register<IAccessRegistry>(client => AccessRegistryInstance);
             Register<ISubscriptionRegistry>(client => SubscriptionRegistryInstance);
+            Register<ISubscriptionMonitor>(client => SubscriptionMonitorInstance);
             Register<IResolveSubscription>(client => ResolveSubscriptionInstance);
 
             Register<IAccessManager>(client => new AccessManager(client, Resolve<IAccessRegistry>(client)));
 			Register<IHistoryService>(client => new HistoryService(client, Resolve<ICryptoService>(client), Resolve<IAccessManager>(client)));
 			Register<IPublishService>(client => new PublishService(client, Resolve<ICryptoService>(client), Resolve<IAccessManager>(client)));
 
-            Register<ISubscribeService>(client => new SubscribeService(client, env => GetMonitor(client, env), Resolve<ISubscriptionRegistry>(client)));
+            Register<ISubscribeService>(client => new SubscribeService(client, Resolve<ISubscriptionMonitor>(client), Resolve<ISubscriptionRegistry>(client)));
         }
 
         public void Register<TService>(Func<IPubNubClient, TService> resolver)
@@ -124,16 +146,6 @@ namespace PubNub.Async.Configuration
 		public override TService Resolve<TService>(IPubNubClient client)
 		{
 			return (TService) Services[typeof (TService)](client);
-        }
-
-        private readonly IDictionary<IPubNubEnvironment, ISubscriptionMonitor> _monitors = new ConcurrentDictionary<IPubNubEnvironment, ISubscriptionMonitor>();
-        private ISubscriptionMonitor GetMonitor(IPubNubClient client, IPubNubEnvironment environment)
-        {
-            if (!_monitors.ContainsKey(environment))
-            {
-                _monitors[environment] = new SubscriptionMonitor(environment, Resolve<ISubscriptionRegistry>(client));
-            }
-            return _monitors[environment];
         }
     }
 }

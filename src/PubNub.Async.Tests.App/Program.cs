@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Configuration;
-using System.Text;
 using System.Threading.Tasks;
 using Autofac;
 using Newtonsoft.Json;
@@ -19,6 +15,9 @@ namespace PubNub.Async.Tests.App
         {
             Console.WriteLine("Configuring PubNub.Async...");
 
+            var authKey = Guid.NewGuid();
+            Console.WriteLine($"Auth key: {authKey}");
+
             var builder = new ContainerBuilder();
             builder.RegisterModule<PubNubAsyncModule>();
             builder.Build();
@@ -26,23 +25,27 @@ namespace PubNub.Async.Tests.App
             Console.WriteLine("Please stand by.");
             PubNub.Configure(c =>
             {
-                c.PublishKey = Settings.Default.PublishKey;
-                c.SubscribeKey = Settings.Default.SubscribeKey;
+                c.PublishKey = Settings.Default.PamPublishKey;
+                c.SubscribeKey = Settings.Default.PamSubKey;
+                c.AuthenticationKey = "console1";
             });
 
             Console.WriteLine($"Subscribing to {Settings.Default.Channel}1");
             var subscribeResult1 = $"{Settings.Default.Channel}1"
+                .Secured()
                 .EncryptedWith(Settings.Default.CipherKey)
                 .Subscribe<Message>(Handler1)
                 .Result;
 
             Console.WriteLine($"Subscribing to {Settings.Default.Channel}2");
             var subscribeResult2 = $"{Settings.Default.Channel}2"
+                .SecuredWith("console2")
                 .Subscribe<Message>(Handler2)
                 .Result;
 
             Console.WriteLine($"Subscribing redundant to {Settings.Default.Channel}2");
             var subscribeResult3 = $"{Settings.Default.Channel}2"
+                .SecuredWith("console2")
                 .Subscribe<Message>(Handler3)
                 .Result;
 

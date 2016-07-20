@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
+using Flurl;
+using Flurl.Http.Testing;
 using Moq;
 using Ploeh.AutoFixture;
 using PubNub.Async.Configuration;
@@ -15,69 +19,6 @@ namespace PubNub.Async.Tests.Services.Subscribe
     public class SubscribeServiceTests : AbstractTest
     {
         [Fact]
-        public async Task Subscribe__Given_ConfiguredEnvironmentAndChannel__When_MonitorStopped__Then_AddSubscriptionStartMonitor()
-        {
-            var subscribeKey = Fixture.Create<string>();
-            var sessionUuid = Fixture.Create<string>();
-            var channelName = Fixture.Create<string>();
-
-            long? stopCalledTicks = null;
-            long? startCalledTicks = null;
-            long? registerCalledTicks = null;
-            
-            var channel = new Channel(channelName);
-
-            MessageReceivedHandler<object> handler = async args => { };
-
-            var expectedResponse = Fixture.Create<SubscribeResponse>();
-
-            var mockEnv = new Mock<IPubNubEnvironment>();
-            mockEnv
-                .SetupGet(x => x.SubscribeKey)
-                .Returns(subscribeKey);
-            mockEnv
-                .SetupGet(x => x.SessionUuid)
-                .Returns(sessionUuid);
-
-            var mockClient = new Mock<IPubNubClient>();
-            mockClient
-                .SetupGet(x => x.Channel)
-                .Returns(channel);
-            mockClient
-                .SetupGet(x => x.Environment)
-                .Returns(mockEnv.Object);
-
-            var mockMonitor = new Mock<ISubscriptionMonitor>();
-            mockMonitor
-                .Setup(x => x.Stop())
-                .Returns(Task.FromResult(1))
-                .Callback(() => stopCalledTicks = DateTime.UtcNow.Ticks);
-            mockMonitor
-                .Setup(x => x.Start())
-                .Callback(() => startCalledTicks = DateTime.UtcNow.Ticks)
-                .ReturnsAsync(expectedResponse);
-
-            var mockRegistry = new Mock<ISubscriptionRegistry>();
-            mockRegistry
-                .Setup(x => x.Register(mockEnv.Object, channel, handler))
-                .Callback<IPubNubEnvironment, Channel, MessageReceivedHandler<object>>((e, c, h) => registerCalledTicks = DateTime.UtcNow.Ticks);
-
-            var subject = new SubscribeService(mockClient.Object, env => mockMonitor.Object, mockRegistry.Object);
-
-            var result = await subject.Subscribe(handler);
-
-            Assert.Same(expectedResponse, result);
-
-            mockMonitor.Verify(x => x.Stop(), Times.Once);
-            mockRegistry.Verify(x => x.Register(mockEnv.Object, channel, handler), Times.Once);
-            mockMonitor.Verify(x => x.Start(), Times.Once);
-
-            Assert.True(stopCalledTicks <= registerCalledTicks);
-            Assert.True(stopCalledTicks <= startCalledTicks);
-            Assert.True(registerCalledTicks <= startCalledTicks);
-        }
-
-        [Fact]
         public async Task Unsubscribe__Given_ConfiguredEnvironmentAndChannel__Then_RemoveChannelSubscription()
         {
             var subscribeKey = Fixture.Create<string>();
@@ -92,6 +33,9 @@ namespace PubNub.Async.Tests.Services.Subscribe
             
             var mockEnv = new Mock<IPubNubEnvironment>();
             mockEnv
+                .SetupGet(x => x.Host)
+                .Returns("https://pubsub.pubnub.com");
+            mockEnv
                 .SetupGet(x => x.SubscribeKey)
                 .Returns(subscribeKey);
             mockEnv
@@ -108,13 +52,13 @@ namespace PubNub.Async.Tests.Services.Subscribe
 
             var mockMonitor = new Mock<ISubscriptionMonitor>();
             mockMonitor
-                .Setup(x => x.Stop())
-                .Returns(Task.FromResult(1))
-                .Callback(() => stopCalledTicks = DateTime.UtcNow.Ticks);
+                .Setup(x => x.Stop(mockEnv.Object))
+                .Callback(() => stopCalledTicks = DateTime.UtcNow.Ticks)
+                .Returns(Task.FromResult(1));
             mockMonitor
-                .Setup(x => x.Start())
+                .Setup(x => x.Start(mockEnv.Object))
                 .Callback(() => startCalledTicks = DateTime.UtcNow.Ticks)
-                .ReturnsAsync(Fixture.Create<SubscribeResponse>());
+                .Returns(Task.FromResult(1));
 
             var mockRegistry = new Mock<ISubscriptionRegistry>();
             mockRegistry
@@ -124,13 +68,13 @@ namespace PubNub.Async.Tests.Services.Subscribe
                 .Setup(x => x.Get(subscribeKey))
                 .Returns(new Subscription[] {new Subscription<string>(Mock.Of<ICryptoService>(), mockEnv.Object, channel)});
 
-            var subject = new SubscribeService(mockClient.Object, env => mockMonitor.Object, mockRegistry.Object);
+            var subject = new SubscribeService(mockClient.Object, mockMonitor.Object, mockRegistry.Object);
 
             await subject.Unsubscribe();
 
-            mockMonitor.Verify(x => x.Stop(), Times.Once);
+            mockMonitor.Verify(x => x.Stop(mockEnv.Object), Times.Once);
             mockRegistry.Verify(x => x.Unregister(mockEnv.Object, channel), Times.Once);
-            mockMonitor.Verify(x => x.Start(), Times.Once);
+            mockMonitor.Verify(x => x.Start(mockEnv.Object), Times.Once);
 
             Assert.True(stopCalledTicks <= unregisterCalledTicks);
             Assert.True(stopCalledTicks <= startCalledTicks);

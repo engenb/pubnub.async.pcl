@@ -7,7 +7,6 @@ namespace PubNub.Async.Services.Subscribe
 {
     public interface ISubscriptionRegistry
     {
-        string Channels(string subscribeKey);
         Subscription[] Get(string subscribeKey);
 
         void Register<TMessage>(IPubNubEnvironment environment, Channel channel, MessageReceivedHandler<TMessage> handler);

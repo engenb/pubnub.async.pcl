@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PubNub.Async.Configuration;
 using PubNub.Async.Services.Crypto;
@@ -11,6 +10,7 @@ namespace PubNub.Async.Models.Subscribe
     public abstract class Subscription
     {
         public string SubscribeKey => Environment.SubscribeKey;
+        public string AuthenticationKey => Environment.AuthenticationKey;
         public string ChannelName => Channel.Name;
         
         protected IPubNubEnvironment Environment { get; }
@@ -40,6 +40,7 @@ namespace PubNub.Async.Models.Subscribe
             }
             var that = (Subscription) obj;
             return this.SubscribeKey == that.SubscribeKey
+                   && this.AuthenticationKey == that.AuthenticationKey
                    && this.Channel == that.Channel;
         }
 
@@ -48,6 +49,7 @@ namespace PubNub.Async.Models.Subscribe
             var hash = 17;
 
             hash = hash*23 + SubscribeKey.GetHashCode();
+            hash = hash*23 + AuthenticationKey.GetHashCode();
             hash = hash*23 + Channel.GetHashCode();
 
             return hash;

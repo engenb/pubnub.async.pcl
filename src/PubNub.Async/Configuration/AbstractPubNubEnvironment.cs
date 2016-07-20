@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace PubNub.Async.Configuration
 {
@@ -13,20 +14,8 @@ namespace PubNub.Async.Configuration
 		public bool SslEnabled { get; set; }
 		public string Origin { get; set; }
 		public string Host => $"{(SslEnabled ? "https://" : "http://")}{Origin}";
-
-		private string _sessionUuid;
-		public string SessionUuid
-		{
-			get
-			{
-				if (string.IsNullOrWhiteSpace(_sessionUuid))
-				{
-					_sessionUuid = Guid.NewGuid().ToString();
-				}
-				return _sessionUuid;
-			}
-			set { _sessionUuid = value; }
-		}
+        
+		public string SessionUuid { get; set; }
 
 		public string AuthenticationKey { get; set; }
 		public int? MinutesToTimeout { get; set; }
@@ -40,11 +29,10 @@ namespace PubNub.Async.Configuration
 
 		public void Reset()
 		{
-			SdkVersion = "PubNub-CSharp-.NET/3.7.1";
 			Origin = "pubsub.pubnub.com";
 
-			SessionUuid = null;
-			AuthenticationKey = null;
+			SessionUuid = Guid.NewGuid().ToString();
+		    AuthenticationKey = null;
 			MinutesToTimeout = null;
 
 			PublishKey = null;

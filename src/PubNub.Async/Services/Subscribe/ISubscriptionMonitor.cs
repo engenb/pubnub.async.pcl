@@ -1,12 +1,12 @@
 ﻿using System.Threading.Tasks;
-using PubNub.Async.Models.Subscribe;
+using PubNub.Async.Configuration;
 
 namespace PubNub.Async.Services.Subscribe
 {
     public interface ISubscriptionMonitor
     {
-        long? SubscribeTimeToken { get; set; }
-        Task<SubscribeResponse> Start();
-        Task Stop();
+        void Register(IPubNubEnvironment environment, long subscribeTimeToken);
+        Task Start(IPubNubEnvironment environment);
+        Task Stop(IPubNubEnvironment enviornment);
     }
 }

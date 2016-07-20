@@ -2,8 +2,6 @@ namespace PubNub.Async.Configuration
 {
 	public interface IPubNubEnvironment
 	{
-		string SdkVersion { get; set; }
-
 		bool SslEnabled { get; set; }
 		string Origin { get; set; }
 		string Host { get; }
