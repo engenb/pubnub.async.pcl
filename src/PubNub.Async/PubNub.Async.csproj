@@ -157,7 +157,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <Compile Include="Models\Access\PubNubForbiddenResponse.cs" />
     <None Include="packages.config" />
     <None Include="PubNub.Async.nuspec" />
   </ItemGroup>
