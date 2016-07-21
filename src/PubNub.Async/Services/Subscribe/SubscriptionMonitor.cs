@@ -1,30 +1,39 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
 using PubNub.Async.Configuration;
 using PubNub.Async.Extensions;
+using PubNub.Async.Models;
+using PubNub.Async.Models.Access;
 using PubNub.Async.Models.Subscribe;
+using PubNub.Async.Services.Access;
 
 namespace PubNub.Async.Services.Subscribe
 {
     public class SubscriptionMonitor : ISubscriptionMonitor
     {
         protected static readonly SemaphoreSlim Mutex = new SemaphoreSlim(1);
-        
+
         private CancellationTokenSource CancellationSource { get; set; }
 
+        private Func<IPubNubEnvironment, Channel, IAccessManager> Access { get; }
         private ISubscriptionRegistry Subscriptions { get; }
 
         private IDictionary<string, long> SubscribeTimeTokens { get; }
 
         private IList<Task> MonitorTasks { get; }
 
-        public SubscriptionMonitor(ISubscriptionRegistry subscriptions)
+        public SubscriptionMonitor(
+            Func<IPubNubEnvironment, Channel, IAccessManager> access,
+            ISubscriptionRegistry subscriptions)
         {
+            Access = access;
             Subscriptions = subscriptions;
 
             SubscribeTimeTokens = new ConcurrentDictionary<string, long>();
@@ -49,14 +58,15 @@ namespace PubNub.Async.Services.Subscribe
                 if (!CancellationSource.IsCancellationRequested)
                 {
                     var subs = Subscriptions.Get(environment.SubscribeKey);
-                    var authSubs = subs.GroupBy(x => x.AuthenticationKey);
-                    foreach (var authSub in authSubs)
+                    var authSubGroups = subs.GroupBy(x => x.Environment.AuthenticationKey);
+                    foreach (var authSubs in authSubGroups)
                     {
                         MonitorTasks.Add(Task.Run(async () =>
                         {
                             while (!CancellationSource.IsCancellationRequested)
                             {
-                                await ReceiveMessages(environment, authSub.Key, authSub);
+                                await EstablishAccess(authSubs);
+                                await ReceiveMessages(environment, authSubs.Key, authSubs);
                             }
                         }, CancellationSource.Token));
                     }
@@ -85,12 +95,32 @@ namespace PubNub.Async.Services.Subscribe
             }
         }
 
+        private async Task<IEnumerable<Subscription>> EstablishAccess(IEnumerable<Subscription> subscriptions)
+        {
+            var subLookup = subscriptions.ToDictionary(x => x.Channel.Name);
+
+            var results = await Task.WhenAll(subscriptions
+                .Where(x => x.Channel.Secured)
+                .Select(x => Access(x.Environment, x.Channel).Establish(AccessType.Read))
+                .ToArray());
+
+            foreach (var result in results)
+            {
+                if (!result.Success)
+                {
+                    subLookup.Remove(result.Channel);
+                }
+            }
+
+            return subLookup.Values;
+        }
+
         private async Task ReceiveMessages(
             IPubNubEnvironment environment,
             string authenticationKey,
             IEnumerable<Subscription> subscriptions)
         {
-            var channelsCsv = string.Join(",", subscriptions.Select(x => x.ChannelName).ToArray());
+            var channelsCsv = string.Join(",", subscriptions.Select(x => x.Channel.Name).ToArray());
 
             var requestUrl = environment.Host
                 .AppendPathSegments("v2", "subscribe")
@@ -107,19 +137,32 @@ namespace PubNub.Async.Services.Subscribe
 
             try
             {
-                var response = await requestUrl
+                var httpResponse = await requestUrl
                     .GetAsync(CancellationSource.Token)
-                    .ProcessResponse()
-                    .ReceiveJson<PubNubSubscribeResponse>();
+                    .ProcessResponse();
 
-                SubscribeTimeTokens[authenticationKey] = response.SubscribeTime.TimeToken;
-
-                if (response.Messages.Any())
+                if (httpResponse.IsSuccessStatusCode)
                 {
-                    foreach (var message in response.Messages)
+                    var response = await Task.FromResult(httpResponse)
+                        .ReceiveJson<PubNubSubscribeResponse>();
+
+                    SubscribeTimeTokens[authenticationKey] = response.SubscribeTime.TimeToken;
+
+                    Task.Run(() =>
                     {
-                        Subscriptions.MessageReceived(message);
-                    }
+                        foreach (var message in response.Messages)
+                        {
+                            Subscriptions.MessageReceived(message);
+                        }
+                    });
+                }
+                else if (httpResponse.StatusCode == HttpStatusCode.Forbidden)
+                {
+                    //TODO
+                }
+                else
+                {
+                    //TODO
                 }
             }
             catch (FlurlHttpException ex)

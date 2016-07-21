@@ -13,6 +13,6 @@ namespace PubNub.Async.Services.Subscribe
         void Unregister<TMessage>(IPubNubEnvironment environment, Channel channel, MessageReceivedHandler<TMessage> handler);
         void Unregister(IPubNubEnvironment environment, Channel channel);
 
-        Task MessageReceived(PubNubSubscribeResponseMessage message);
+        void MessageReceived(PubNubSubscribeResponseMessage message);
     }
 }

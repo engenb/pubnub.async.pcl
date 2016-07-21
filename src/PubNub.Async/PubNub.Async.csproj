@@ -53,7 +53,6 @@
     <Compile Include="IPubNubClient.cs" />
     <Compile Include="Models\Access\AccessType.cs" />
     <Compile Include="Models\Access\GrantResponse.cs" />
-    <Compile Include="Models\Access\PubNubForbiddenResponse.cs" />
     <Compile Include="Models\Access\PubNubForbiddenResponsePayload.cs" />
     <Compile Include="Models\Access\PubNubGrantResponse.cs" />
     <Compile Include="Models\Access\PubNubGrantResponseAuths.cs" />
@@ -63,8 +62,6 @@
     <Compile Include="Models\History\HistoryMessage.cs" />
     <Compile Include="Models\History\HistoryResponse.cs" />
     <Compile Include="Models\Publish\PublishResponse.cs" />
-    <Compile Include="Models\Subscribe\PubNubSubscribeError.cs" />
-    <Compile Include="Models\Subscribe\PubNubSubscribeErrorPayload.cs" />
     <Compile Include="Models\Subscribe\PubNubSubscribeResponse.cs" />
     <Compile Include="Models\Subscribe\PubNubSubscribeResponseMessage.cs" />
     <Compile Include="Models\Subscribe\PubNubSubscribeResponseTime.cs" />
@@ -159,6 +156,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="Models\Access\PubNubForbiddenResponse.cs" />
     <None Include="packages.config" />
     <None Include="PubNub.Async.nuspec" />
   </ItemGroup>

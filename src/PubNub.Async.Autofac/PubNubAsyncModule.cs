@@ -1,6 +1,7 @@
 ﻿using System;
 using Autofac;
 using PubNub.Async.Configuration;
+using PubNub.Async.Models;
 using PubNub.Async.Models.Subscribe;
 using PubNub.Async.Services.Access;
 using PubNub.Async.Services.Crypto;
@@ -38,10 +39,6 @@ namespace PubNub.Async.Autofac
 				.RegisterType<AccessManager>()
 				.As<IAccessManager>();
             
-            builder
-                .RegisterType<SubscribeService>()
-                .As<ISubscribeService>();
-
 		    builder
 		        .RegisterType<SubscriptionMonitor>()
 		        .As<ISubscriptionMonitor>()
@@ -73,9 +70,12 @@ namespace PubNub.Async.Autofac
 							$"{typeof (IPubNubClient).Name} is required to resolve ${typeof (IHistoryService).Name}");
 					}
 
-					var access = context.Resolve<Func<IPubNubClient, IAccessManager>>();
+					var access = context.Resolve<Func<IPubNubEnvironment, Channel, IAccessManager>>();
 
-					return new HistoryService(client, c.Resolve<ICryptoService>(), access(client));
+					return new HistoryService(
+                        client,
+                        context.Resolve<ICryptoService>(),
+                        access(client.Environment, client.Channel));
 				});
 
 			builder
@@ -90,10 +90,34 @@ namespace PubNub.Async.Autofac
 							$"{typeof (IPubNubClient).Name} is required to resolve ${typeof (IPublishService).Name}");
 					}
 
-					var access = context.Resolve<Func<IPubNubClient, IAccessManager>>();
+                    var access = context.Resolve<Func<IPubNubEnvironment, Channel, IAccessManager>>();
 
-					return new PublishService(client, c.Resolve<ICryptoService>(), access(client));
+                    return new PublishService(
+                        client,
+                        context.Resolve<ICryptoService>(),
+                        access(client.Environment, client.Channel));
 				});
-		}
+
+            builder
+                .Register<ISubscribeService>((c, p) =>
+                {
+                    var context = c.Resolve<IComponentContext>();
+
+                    var client = p.TypedAs<IPubNubClient>();
+                    if (client == null)
+                    {
+                        throw new InvalidOperationException(
+                            $"{typeof(IPubNubClient).Name} is required to resolve ${typeof(IPublishService).Name}");
+                    }
+                    
+                    var access = context.Resolve<Func<IPubNubEnvironment, Channel, IAccessManager>>();
+
+                    return new SubscribeService(
+                        client,
+                        access(client.Environment, client.Channel),
+                        context.Resolve<ISubscriptionMonitor>(),
+                        context.Resolve<ISubscriptionRegistry>());
+                });
+        }
 	}
 }

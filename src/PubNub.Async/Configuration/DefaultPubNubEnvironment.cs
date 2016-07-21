@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using PubNub.Async.Services.Access;
 using PubNub.Async.Services.Crypto;
 using PubNub.Async.Services.History;
@@ -85,7 +84,9 @@ namespace PubNub.Async.Configuration
                     {
                         if (_subscriptionMonitor == null)
                         {
-                            _subscriptionMonitor = new SubscriptionMonitor(SubscriptionRegistryInstance);
+                            _subscriptionMonitor = new SubscriptionMonitor(
+                                (env, channel) => new AccessManager(env, channel, AccessRegistryInstance),
+                                SubscriptionRegistryInstance);
                         }
                     }
                 }
@@ -131,11 +132,15 @@ namespace PubNub.Async.Configuration
             Register<ISubscriptionMonitor>(client => SubscriptionMonitorInstance);
             Register<IResolveSubscription>(client => ResolveSubscriptionInstance);
 
-            Register<IAccessManager>(client => new AccessManager(client, Resolve<IAccessRegistry>(client)));
+            Register<IAccessManager>(client => new AccessManager(client.Environment, client.Channel, Resolve<IAccessRegistry>(client)));
 			Register<IHistoryService>(client => new HistoryService(client, Resolve<ICryptoService>(client), Resolve<IAccessManager>(client)));
 			Register<IPublishService>(client => new PublishService(client, Resolve<ICryptoService>(client), Resolve<IAccessManager>(client)));
 
-            Register<ISubscribeService>(client => new SubscribeService(client, Resolve<ISubscriptionMonitor>(client), Resolve<ISubscriptionRegistry>(client)));
+            Register<ISubscribeService>(client => new SubscribeService(
+                client,
+                Resolve<IAccessManager>(client),
+                Resolve<ISubscriptionMonitor>(client),
+                Resolve<ISubscriptionRegistry>(client)));
         }
 
         public void Register<TService>(Func<IPubNubClient, TService> resolver)

@@ -9,28 +9,24 @@ namespace PubNub.Async.Models.Subscribe
 {
     public abstract class Subscription
     {
-        public string SubscribeKey => Environment.SubscribeKey;
-        public string AuthenticationKey => Environment.AuthenticationKey;
-        public string ChannelName => Channel.Name;
-        
-        protected IPubNubEnvironment Environment { get; }
-        protected Channel Channel { get; }
+        public IPubNubEnvironment Environment { get; }
+        public Channel Channel { get; }
 
         protected Subscription(IPubNubEnvironment environment, Channel channel)
         {
-            Environment = environment;
-            Channel = channel;
+            Environment = environment.Clone();
+            Channel = channel.Clone();
         }
 
-        public async Task OnMessageReceived(PubNubSubscribeResponseMessage message)
+        public void OnMessageReceived(PubNubSubscribeResponseMessage message)
         {
-            if (SubscribeKey == message.SubscribeKey && ChannelName == message.Channel)
+            if (Environment.SubscribeKey == message.SubscribeKey && Channel.Name == message.Channel)
             {
-                await ProcessMessage(message).ConfigureAwait(false);
+                ProcessMessage(message);
             }
         }
 
-        public abstract Task ProcessMessage(PubNubSubscribeResponseMessage message);
+        protected abstract void ProcessMessage(PubNubSubscribeResponseMessage message);
 
         public override bool Equals(object obj)
         {
@@ -39,8 +35,8 @@ namespace PubNub.Async.Models.Subscribe
                 return false;
             }
             var that = (Subscription) obj;
-            return this.SubscribeKey == that.SubscribeKey
-                   && this.AuthenticationKey == that.AuthenticationKey
+            return this.Environment.SubscribeKey == that.Environment.SubscribeKey
+                   && this.Environment.AuthenticationKey == that.Environment.AuthenticationKey
                    && this.Channel == that.Channel;
         }
 
@@ -48,8 +44,8 @@ namespace PubNub.Async.Models.Subscribe
         {
             var hash = 17;
 
-            hash = hash*23 + SubscribeKey.GetHashCode();
-            hash = hash*23 + AuthenticationKey.GetHashCode();
+            hash = hash*23 + Environment.SubscribeKey.GetHashCode();
+            hash = hash*23 + Environment.AuthenticationKey.GetHashCode();
             hash = hash*23 + Channel.GetHashCode();
 
             return hash;
@@ -81,7 +77,7 @@ namespace PubNub.Async.Models.Subscribe
             MessageReceived -= handler;
         }
 
-        public override async Task ProcessMessage(PubNubSubscribeResponseMessage message)
+        protected override void ProcessMessage(PubNubSubscribeResponseMessage message)
         {
             if (MessageReceived != null)
             {
@@ -106,14 +102,14 @@ namespace PubNub.Async.Models.Subscribe
                     //TODO: warn of decryption failure (wrong cipher?) conversion failure (wrong model?)
                 }
 
-                await MessageReceived(new MessageReceivedEventArgs<TMessage>(
+                MessageReceived(new MessageReceivedEventArgs<TMessage>(
                    message.SubscribeKey,
                    message.Channel,
                    message.SessionUuid,
                    message.Processed.TimeToken,
                    message.Data,
                    decryptedMsgJson,
-                   msg)).ConfigureAwait(false);
+                   msg));
             }
         }
     }
