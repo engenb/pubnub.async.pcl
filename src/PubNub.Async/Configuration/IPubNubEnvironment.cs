@@ -20,7 +20,6 @@ namespace PubNub.Async.Configuration
 
 	    bool GrantCapable();
 		void Reset();
-	    bool GrantCapable();
 		IPubNubEnvironment Clone();
 	}
 }

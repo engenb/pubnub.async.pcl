@@ -47,13 +47,6 @@ namespace PubNub.Async.Configuration
 			SslEnabled = true;
 		}
 
-	    public bool GrantCapable()
-	    {
-	        return !string.IsNullOrWhiteSpace(PublishKey)
-	               && !string.IsNullOrWhiteSpace(SubscribeKey)
-	               && !string.IsNullOrWhiteSpace(SecretKey);
-	    }
-
 	    public IPubNubEnvironment Clone()
 		{
 			return (IPubNubEnvironment) MemberwiseClone();
