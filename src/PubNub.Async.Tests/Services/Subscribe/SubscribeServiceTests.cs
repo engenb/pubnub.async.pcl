@@ -9,6 +9,7 @@ using Ploeh.AutoFixture;
 using PubNub.Async.Configuration;
 using PubNub.Async.Models;
 using PubNub.Async.Models.Subscribe;
+using PubNub.Async.Services.Access;
 using PubNub.Async.Services.Crypto;
 using PubNub.Async.Services.Subscribe;
 using PubNub.Async.Tests.Common;
@@ -50,6 +51,8 @@ namespace PubNub.Async.Tests.Services.Subscribe
                 .SetupGet(x => x.Environment)
                 .Returns(mockEnv.Object);
 
+            var mockAccess = new Mock<IAccessManager>();
+
             var mockMonitor = new Mock<ISubscriptionMonitor>();
             mockMonitor
                 .Setup(x => x.Stop(mockEnv.Object))
@@ -68,7 +71,11 @@ namespace PubNub.Async.Tests.Services.Subscribe
                 .Setup(x => x.Get(subscribeKey))
                 .Returns(new Subscription[] {new Subscription<string>(Mock.Of<ICryptoService>(), mockEnv.Object, channel)});
 
-            var subject = new SubscribeService(mockClient.Object, mockMonitor.Object, mockRegistry.Object);
+            var subject = new SubscribeService(
+                mockClient.Object,
+                mockAccess.Object,
+                mockMonitor.Object,
+                mockRegistry.Object);
 
             await subject.Unsubscribe();
 

@@ -27,13 +27,15 @@ namespace PubNub.Async.Tests.App
             {
                 c.PublishKey = Settings.Default.PamPublishKey;
                 c.SubscribeKey = Settings.Default.PamSubKey;
+                c.SecretKey = Settings.Default.PamSecKey;
+                c.CipherKey = Settings.Default.CipherKey;
                 c.AuthenticationKey = "console1";
             });
-
+            
             Console.WriteLine($"Subscribing to {Settings.Default.Channel}1");
             var subscribeResult1 = $"{Settings.Default.Channel}1"
                 .Secured()
-                .EncryptedWith(Settings.Default.CipherKey)
+                .Encrypted()
                 .Subscribe<Message>(Handler1)
                 .Result;
 

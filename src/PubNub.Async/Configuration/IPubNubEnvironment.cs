@@ -19,6 +19,7 @@ namespace PubNub.Async.Configuration
 		TService Resolve<TService>(IPubNubClient client);
 
 		void Reset();
+	    bool GrantCapable();
 		IPubNubEnvironment Clone();
 	}
 }

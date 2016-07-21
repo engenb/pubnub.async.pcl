@@ -38,9 +38,9 @@ namespace PubNub.Async.Services.Subscribe
 
             var sub = Subscriptions[subscribeKey]
                 .SingleOrDefault(x =>
-                    x.SubscribeKey == subscribeKey &&
-                    x.AuthenticationKey == environment.AuthenticationKey &&
-                    x.ChannelName == channel.Name) as Subscription<TMessage>;
+                    x.Environment.SubscribeKey == subscribeKey &&
+                    x.Environment.AuthenticationKey == environment.AuthenticationKey &&
+                    x.Channel.Name == channel.Name) as Subscription<TMessage>;
 
             if (sub == null)
             {
@@ -57,7 +57,10 @@ namespace PubNub.Async.Services.Subscribe
             if (Subscriptions.ContainsKey(subscribeKey))
             {
                 var subs = Subscriptions[subscribeKey];
-                var sub = subs.SingleOrDefault(x => x.SubscribeKey == subscribeKey && x.ChannelName == channel.Name) as Subscription<TMessage>;
+                var sub = subs.SingleOrDefault(x =>
+                    x.Environment.SubscribeKey == subscribeKey
+                    && x.Channel.Name == channel.Name) as Subscription<TMessage>;
+
                 if (sub != null)
                 {
                     sub.MessageReceived -= handler;
@@ -71,7 +74,10 @@ namespace PubNub.Async.Services.Subscribe
             if (Subscriptions.ContainsKey(subscribeKey))
             {
                 var subs = Subscriptions[subscribeKey];
-                var sub = subs.SingleOrDefault(x => x.SubscribeKey == subscribeKey && x.ChannelName == channel.Name);
+                var sub = subs.SingleOrDefault(x =>
+                    x.Environment.SubscribeKey == subscribeKey
+                    && x.Channel.Name == channel.Name);
+
                 if (sub != null)
                 {
                     subs.Remove(sub);
@@ -79,18 +85,19 @@ namespace PubNub.Async.Services.Subscribe
             }
         }
 
-        public async Task MessageReceived(PubNubSubscribeResponseMessage message)
+        public void MessageReceived(PubNubSubscribeResponseMessage message)
         {
             var subscribeKey = message.SubscribeKey;
             if (Subscriptions.ContainsKey(subscribeKey))
             {
                 var subs = Subscriptions[subscribeKey];
                 var channelSubs = subs
-                    .Where(x => x.ChannelName == message.Channel)
+                    .Where(x => x.Channel.Name == message.Channel)
                     .ToArray();
+
                 foreach (var channelSub in channelSubs)
                 {
-                    await channelSub.OnMessageReceived(message);
+                    channelSub.OnMessageReceived(message);
                 }
             }
         }

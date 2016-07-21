@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Flurl;
@@ -9,12 +7,15 @@ using Flurl.Http;
 using PubNub.Async.Configuration;
 using PubNub.Async.Extensions;
 using PubNub.Async.Models;
+using PubNub.Async.Models.Access;
 using PubNub.Async.Models.Subscribe;
+using PubNub.Async.Services.Access;
 
 namespace PubNub.Async.Services.Subscribe
 {
     public class SubscribeService : ISubscribeService
     {
+        private IAccessManager Access { get; }
         private ISubscriptionMonitor Monitor { get; }
         private ISubscriptionRegistry Subscriptions { get; }
         
@@ -23,12 +24,14 @@ namespace PubNub.Async.Services.Subscribe
 
         public SubscribeService(
             IPubNubClient client,
+            IAccessManager access,
             ISubscriptionMonitor monitor,
             ISubscriptionRegistry subscriptions)
         {
             Environment = client.Environment;
             Channel = client.Channel;
 
+            Access = access;
             Monitor = monitor;
             Subscriptions = subscriptions;
         }
@@ -41,8 +44,8 @@ namespace PubNub.Async.Services.Subscribe
             // attempt to subscribe before registering the channel
             var channels = Subscriptions
                 .Get(Environment.SubscribeKey)
-                .Where(x => x.AuthenticationKey == Environment.AuthenticationKey)
-                .Select(x => x.ChannelName)
+                .Where(x => x.Environment.AuthenticationKey == Environment.AuthenticationKey)
+                .Select(x => x.Channel.Name)
                 .ToList();
 
             channels.Add(Channel.Name);
@@ -62,6 +65,16 @@ namespace PubNub.Async.Services.Subscribe
                 {
                     throw new InvalidOperationException("A AuthenticationKey must be provided when subscribing to a secured channel.");
                 }
+
+                if (Environment.GrantCapable())
+                {
+                    var grantResponse = await Access.Establish(AccessType.Read);
+                    if (!grantResponse.Success)
+                    {
+                        //TODO: do something...  probably throw ex to halt operation
+                    }
+                }
+
                 requestUrl.SetQueryParam("auth", Environment.AuthenticationKey);
             }
 
@@ -139,7 +152,7 @@ namespace PubNub.Async.Services.Subscribe
             else
             {
                 var responseJson = await Task.FromResult(response)
-                    .ReceiveJson<PubNubSubscribeError>();
+                    .ReceiveJson<PubNubForbiddenResponse>();
                 return new SubscribeResponse
                 {
                     Success = false,
