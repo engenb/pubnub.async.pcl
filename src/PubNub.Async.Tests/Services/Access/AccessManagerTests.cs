@@ -80,6 +80,8 @@ namespace PubNub.Async.Tests.Services.Access
 			var expectedResult = new GrantResponse
 			{
 				Success = true,
+				SubscribeKey = pnResponse.Payload.SubscribeKey,
+				Channel = pnResponse.Payload.Channel,
 				Message = pnResponse.Message,
 				MinutesToExpire = pnResponse.Payload.MintuesToExpire,
 				Access = access

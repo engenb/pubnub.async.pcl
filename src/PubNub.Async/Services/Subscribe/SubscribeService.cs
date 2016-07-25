@@ -13,152 +13,138 @@ using PubNub.Async.Services.Access;
 
 namespace PubNub.Async.Services.Subscribe
 {
-    public class SubscribeService : ISubscribeService
-    {
-        private IAccessManager Access { get; }
-        private ISubscriptionMonitor Monitor { get; }
-        private ISubscriptionRegistry Subscriptions { get; }
-        
-        private IPubNubEnvironment Environment { get; }
-        private Channel Channel { get; }
+	public class SubscribeService : ISubscribeService
+	{
+		private IAccessManager Access { get; }
+		private ISubscriptionMonitor Monitor { get; }
+		private ISubscriptionRegistry Subscriptions { get; }
 
-        public SubscribeService(
-            IPubNubClient client,
-            IAccessManager access,
-            ISubscriptionMonitor monitor,
-            ISubscriptionRegistry subscriptions)
-        {
-            Environment = client.Environment;
-            Channel = client.Channel;
+		private IPubNubEnvironment Environment { get; }
+		private Channel Channel { get; }
 
-            Access = access;
-            Monitor = monitor;
-            Subscriptions = subscriptions;
-        }
+		public SubscribeService(
+			IPubNubClient client,
+			IAccessManager access,
+			ISubscriptionMonitor monitor,
+			ISubscriptionRegistry subscriptions)
+		{
+			Environment = client.Environment;
+			Channel = client.Channel;
 
-        public async Task<SubscribeResponse> Subscribe<TMessage>(MessageReceivedHandler<TMessage> handler)
-        {
-            //stop the monitor, to be reconfigured
-            await Monitor.Stop(Environment);
+			Access = access;
+			Monitor = monitor;
+			Subscriptions = subscriptions;
+		}
 
-            // attempt to subscribe before registering the channel
-            var channels = Subscriptions
-                .Get(Environment.SubscribeKey)
-                .Where(x => x.Environment.AuthenticationKey == Environment.AuthenticationKey)
-                .Select(x => x.Channel.Name)
-                .ToList();
+		public async Task<SubscribeResponse> Subscribe<TMessage>(MessageReceivedHandler<TMessage> handler)
+		{
+			//stop the monitor for reconfiguration
+			await Monitor.Stop(Environment);
 
-            channels.Add(Channel.Name);
+			// attempt to subscribe before registering the channel
+			var channels = Subscriptions
+				.Get(Environment.SubscribeKey)
+				.Where(x => x.Environment.AuthenticationKey == Environment.AuthenticationKey)
+				.Select(x => x.Channel.Name)
+				.ToList();
+			channels.Add(Channel.Name);
 
-            var channelsCsv = string.Join(",", channels);
+			var channelsCsv = string.Join(",", channels);
 
-            var requestUrl = Environment.Host
-                .AppendPathSegments("v2", "subscribe")
-                .AppendPathSegment(Environment.SubscribeKey)
-                .AppendPathSegment(channelsCsv)
-                .AppendPathSegment("0")
-                .SetQueryParam("uuid", Environment.SessionUuid);
+			var requestUrl = Environment.Host
+				.AppendPathSegments("v2", "subscribe")
+				.AppendPathSegment(Environment.SubscribeKey)
+				.AppendPathSegment(channelsCsv)
+				.AppendPathSegment("0")
+				.SetQueryParam("uuid", Environment.SessionUuid);
 
-            if (Channel.Secured)
-            {
-                if (string.IsNullOrWhiteSpace(Environment.AuthenticationKey))
-                {
-                    throw new InvalidOperationException("A AuthenticationKey must be provided when subscribing to a secured channel.");
-                }
+			if (Channel.Secured)
+			{
+				if (Environment.GrantCapable())
+				{
+					var grantResponse = await Access.Establish(AccessType.Read);
+					if (!grantResponse.Success)
+					{
+						return new SubscribeResponse
+						{
+							Success = false,
+							Message = grantResponse.Message
+						};
+					}
+				}
 
-                if (Environment.GrantCapable())
-                {
-                    var grantResponse = await Access.Establish(AccessType.Read);
-                    if (!grantResponse.Success)
-                    {
-                        //TODO: do something...  probably throw ex to halt operation
-                    }
-                }
+				if (!string.IsNullOrWhiteSpace(Environment.AuthenticationKey))
+				{
+					requestUrl.SetQueryParam("auth", Environment.AuthenticationKey);
+				}
+			}
 
-                requestUrl.SetQueryParam("auth", Environment.AuthenticationKey);
-            }
+			var httpResponse = await requestUrl
+				.AllowHttpStatus("403")
+				.GetAsync()
+				.ProcessResponse();
 
-            try
-            {
-                var httpResponse = await requestUrl
-                    .AllowHttpStatus("403")
-                    .GetAsync()
-                    .ProcessResponse();
+			var subResponse = await HandleResponse(httpResponse);
 
-                var subResponse = await HandleResponse(httpResponse);
+			//successfully subscribed, so register the channel for monitoring
+			if (subResponse.Success)
+			{
+				Monitor.Register(Environment, subResponse.SubscribeTime);
+				Subscriptions.Register(Environment, Channel, handler);
+			}
+			await StartMonitor(Environment);
+			return subResponse;
+		}
 
-                //successfully subscribed, so register the channel for monitoring
-                if (subResponse.Success)
-                {
-                    Monitor.Register(Environment, subResponse.SubscribeTime);
-                    Subscriptions.Register(Environment, Channel, handler);
-                }
-                return subResponse;
-            }
-            catch (FlurlHttpException ex)
-            {
-                if (!(ex.InnerException is TaskCanceledException))
-                {
-                    throw;
-                }
-            }
-            finally
-            {
-                // restart the monitor with newly registered subscription
-                await StartMonitor(Environment);
-            }
-            return new SubscribeResponse();
-        }
+		public async Task Unsubscribe<TMessage>(MessageReceivedHandler<TMessage> handler)
+		{
+			await Monitor.Stop(Environment);
 
-        public async Task Unsubscribe<TMessage>(MessageReceivedHandler<TMessage> handler)
-        {
-            await Monitor.Stop(Environment);
+			Subscriptions.Unregister(Environment, Channel, handler);
 
-            Subscriptions.Unregister(Environment, Channel, handler);
+			await StartMonitor(Environment);
+		}
 
-            await StartMonitor(Environment);
-        }
+		public async Task Unsubscribe()
+		{
+			await Monitor.Stop(Environment);
 
-        public async Task Unsubscribe()
-        {
-            await Monitor.Stop(Environment);
+			Subscriptions.Unregister(Environment, Channel);
 
-            Subscriptions.Unregister(Environment, Channel);
+			await StartMonitor(Environment);
+		}
 
-            await StartMonitor(Environment);
-        }
+		private async Task StartMonitor(IPubNubEnvironment environment)
+		{
+			if (Subscriptions.Get(environment.SubscribeKey).Any())
+			{
+				await Monitor.Start(environment);
+			}
+		}
 
-        private async Task StartMonitor(IPubNubEnvironment environment)
-        {
-            if (Subscriptions.Get(environment.SubscribeKey).Any())
-            {
-                await Monitor.Start(environment);
-            }
-        }
+		private static async Task<SubscribeResponse> HandleResponse(HttpResponseMessage response)
+		{
+			if (response.IsSuccessStatusCode)
+			{
+				var responseJson = await Task.FromResult(response)
+					.ReceiveJson<PubNubSubscribeResponse>();
 
-        private static async Task<SubscribeResponse> HandleResponse(HttpResponseMessage response)
-        {
-            if (response.IsSuccessStatusCode)
-            {
-                var responseJson = await Task.FromResult(response)
-                    .ReceiveJson<PubNubSubscribeResponse>();
-
-                return new SubscribeResponse
-                {
-                    Success = true,
-                    SubscribeTime = responseJson.SubscribeTime.TimeToken
-                };
-            }
-            else
-            {
-                var responseJson = await Task.FromResult(response)
-                    .ReceiveJson<PubNubForbiddenResponse>();
-                return new SubscribeResponse
-                {
-                    Success = false,
-                    Message = responseJson.Message
-                };
-            }
-        }
-    }
+				return new SubscribeResponse
+				{
+					Success = true,
+					SubscribeTime = responseJson.SubscribeTime.TimeToken
+				};
+			}
+			else
+			{
+				var responseJson = await Task.FromResult(response)
+					.ReceiveJson<PubNubForbiddenResponse>();
+				return new SubscribeResponse
+				{
+					Success = false,
+					Message = responseJson.Message
+				};
+			}
+		}
+	}
 }
