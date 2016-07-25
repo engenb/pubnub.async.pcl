@@ -67,8 +67,9 @@
       src\packages\coveralls.io.1.3.4\tools\coveralls.net.exe --opencover coverage.xml
   deploy:
   - provider: NuGet
+    server: https://www.myget.org/F/engenb/api/v3/index.json
     api_key:
-      secure: UDzyB4rW2T34FpiDGyfUCSlSU0OljTZuIphVPbPxvm6RIElHiyZ021zOwKBNFn33
+      secure: nx1kpAst2K0y+ZYR1KPxCutTiLSUeOE0SL/mb8RFMzdjaxhDmOm4eCYd6YKV7shG
 
 # Branches and Pull Requests - no nuget publish
 -
