@@ -9,6 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PubNub.Async.Tests", "PubNu
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "~Solution Items", "~Solution Items", "{337A4B12-D203-4C24-9EBA-2C88B218ECFA}"
 	ProjectSection(SolutionItems) = preProject
+		..\appveyor.yml = ..\appveyor.yml
 		SharedAssemblyInfo.cs = SharedAssemblyInfo.cs
 		SharedAssemblyVersionInfo.cs = SharedAssemblyVersionInfo.cs
 	EndProjectSection
