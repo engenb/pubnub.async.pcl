@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Moq;
 using Ploeh.AutoFixture;
@@ -15,7 +12,7 @@ using Xunit;
 
 namespace PubNub.Async.Tests.Extensions
 {
-	public class SubscribeExtensionsTests : AbstractTest
+	public class SubscribeExtensionsTests : AbstractTest, IDisposable
 	{
 		[Fact]
 		public async Task Subscribe__Given_StringAndHandler__Then_Subscribe()
@@ -74,6 +71,11 @@ namespace PubNub.Async.Tests.Extensions
 
 			Assert.Equal(expectedChannelName, capturedClient.Channel.Name);
 			Assert.Same(expectedResult, result);
+		}
+
+		public void Dispose()
+		{
+			PubNub.InternalEnvironment = new Lazy<IPubNubEnvironment>(() => new DefaultPubNubEnvironment());
 		}
 	}
 }

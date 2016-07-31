@@ -12,7 +12,7 @@ using Xunit;
 
 namespace PubNub.Async.Tests.Extensions
 {
-	public class PublishExtensionsTests : AbstractTest
+	public class PublishExtensionsTests : AbstractTest, IDisposable
 	{
 		[Fact]
 		public async Task Publish__Given_StringAndMessage__Then_Publish()
@@ -72,6 +72,11 @@ namespace PubNub.Async.Tests.Extensions
 
 			Assert.Equal(expectedChannelName, capturedClient.Channel.Name);
 			Assert.Same(expectedResult, result);
+		}
+
+		public void Dispose()
+		{
+			PubNub.InternalEnvironment = new Lazy<IPubNubEnvironment>(() => new DefaultPubNubEnvironment());
 		}
 	}
 }

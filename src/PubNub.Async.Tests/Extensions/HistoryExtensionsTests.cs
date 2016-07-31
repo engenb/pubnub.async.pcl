@@ -12,7 +12,7 @@ using Xunit;
 
 namespace PubNub.Async.Tests.Extensions
 {
-	public class HistoryExtensionsTests : AbstractTest
+	public class HistoryExtensionsTests : AbstractTest, IDisposable
 	{
 		[Fact]
 		public async Task History__Given_StringAndArguments__Then_ResolveInvokeHistory()
@@ -91,6 +91,11 @@ namespace PubNub.Async.Tests.Extensions
 
 			Assert.Equal(expectedChannelName, capturedClient.Channel.Name);
 			Assert.Same(expectedResult, result);
+		}
+
+		public void Dispose()
+		{
+			PubNub.InternalEnvironment = new Lazy<IPubNubEnvironment>(() => new DefaultPubNubEnvironment());
 		}
 	}
 }

@@ -13,7 +13,7 @@ using Xunit;
 
 namespace PubNub.Async.Autofac.Tests
 {
-	public class PubNubAutofacBootstrapperTests : AbstractTest
+	public class PubNubAutofacBootstrapperTests : AbstractTest, IDisposable
 	{
 		[Fact]
 		public void Start__Given_Environment__When_EnvironmentCreated__Then_CopyValues()
@@ -72,6 +72,11 @@ namespace PubNub.Async.Autofac.Tests
 			Assert.Equal(expectedSecretKey, result.SecretKey);
 			Assert.Equal(expectedSessionUuid, result.SessionUuid);
 			Assert.Equal(expectedSslEnabled, result.SslEnabled);
+		}
+
+		public void Dispose()
+		{
+			PubNub.InternalEnvironment = new Lazy<IPubNubEnvironment>(() => new DefaultPubNubEnvironment());
 		}
 	}
 }
