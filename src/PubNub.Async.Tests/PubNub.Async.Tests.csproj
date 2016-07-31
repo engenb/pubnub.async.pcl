@@ -129,6 +129,8 @@
   <ItemGroup>
     <Compile Include="Configuration\DefaultResolveSubscriptionTests.cs" />
     <Compile Include="Extensions\ChannelExtensionsTests.cs" />
+    <Compile Include="Extensions\HistoryExtensionsTests.cs" />
+    <Compile Include="Extensions\SubscribeExtensionsTests.cs" />
     <Compile Include="Models\Access\AccessRegistrationTests.cs" />
     <Compile Include="Models\ChannelTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
