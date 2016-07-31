@@ -23,7 +23,7 @@ namespace PubNub.Async.Autofac.Tests
 
 			var crypto = PubNub.Environment.Resolve<ICryptoService>(client);
 			Assert.NotNull(crypto);
-
+			
 			var publish = PubNub.Environment.Resolve<IPublishService>(client);
 			Assert.NotNull(publish);
 
@@ -32,6 +32,12 @@ namespace PubNub.Async.Autofac.Tests
             
 			var history = PubNub.Environment.Resolve<IHistoryService>(client);
 			Assert.NotNull(history);
+
+			var resolveSub = PubNub.Environment.Resolve<IResolveSubscription>(client);
+			Assert.NotNull(resolveSub);
+
+			var sub = resolveSub.Resolve<object>(client.Environment, client.Channel);
+			Assert.NotNull(sub);
 		}
 	}
 }
