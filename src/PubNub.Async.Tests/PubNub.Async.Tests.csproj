@@ -128,6 +128,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Configuration\DefaultResolveSubscriptionTests.cs" />
+    <Compile Include="Extensions\AccessExtensionsTests.cs" />
     <Compile Include="Extensions\ChannelExtensionsTests.cs" />
     <Compile Include="Extensions\HistoryExtensionsTests.cs" />
     <Compile Include="Extensions\PublishExtensionsTests.cs" />
