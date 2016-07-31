@@ -1,4 +1,6 @@
-﻿using Autofac;
+﻿using System;
+using Autofac;
+using PubNub.Async.Configuration;
 using PubNub.Async.Services.Access;
 using PubNub.Async.Services.Crypto;
 using PubNub.Async.Services.History;
@@ -8,7 +10,7 @@ using Xunit;
 
 namespace PubNub.Async.Autofac.Tests
 {
-	public class PubNubAsyncModuleTests
+	public class PubNubAsyncModuleTests : IDisposable
 	{
 		[Fact]
 		public void Module()
@@ -38,6 +40,11 @@ namespace PubNub.Async.Autofac.Tests
 
 			var sub = resolveSub.Resolve<object>(client.Environment, client.Channel);
 			Assert.NotNull(sub);
+		}
+
+		public void Dispose()
+		{
+			PubNub.InternalEnvironment = new Lazy<IPubNubEnvironment>(() => new DefaultPubNubEnvironment());
 		}
 	}
 }
